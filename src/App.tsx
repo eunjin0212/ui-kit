@@ -3,9 +3,11 @@ import './css/App.css';
 import SDropdown from './components/SDropdown';
 import SCheckbox from './components/SCheckbox';
 import SButton from './components/SButton';
+import STabs from './components/STabs';
 
 function App() {
 	const [checked, setChecked] = useState<boolean>(false);
+	const [tab, setTab] = useState('1');
 	function handleClick() {
 		setChecked(!checked);
 	}
@@ -16,7 +18,7 @@ function App() {
 					type='button'
 					onClick={handleClick}
 					className='bg-positive'
-     label='toggle button'
+					label='toggle button'
 				/>
 				<SCheckbox
 					label='aaa'
@@ -61,6 +63,20 @@ function App() {
 					label='dropdown'
 					className='m-11'
 				/>
+				<STabs
+					value={tab}
+					onChange={(val) => {
+						const tabValue = val as string;
+						setTab(tabValue);
+					}}
+					options={[
+						{ label: 'tab1', value: '1' },
+						{ label: 'tab2', value: '2' },
+					]}
+				>
+     <div data-value='1'>1</div>
+     <div data-value='2'>2</div>
+    </STabs>
 			</main>
 		</>
 	);

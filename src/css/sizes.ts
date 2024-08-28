@@ -7,6 +7,7 @@ const sizes = {
  '5.5': '1.333rem', // 16px
  '6.5': '1.667rem', // 20px
  '9.5': '2.333rem', // 28px
+ '10.5': '2.667rem', // 32px
 }
 
 export default sizes
