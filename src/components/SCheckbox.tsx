@@ -1,12 +1,15 @@
 import {
 	type ChangeEvent,
+	type InputHTMLAttributes,
 	useState,
 	useEffect,
-	type InputHTMLAttributes,
 	useMemo,
+	useCallback,
 } from 'react';
 import { Check12 } from '../assets/CheckIcon';
 import { MinusIcon12 } from '../assets/MinusIcon';
+
+type Checked = null | boolean | (string | number)[];
 export interface CheckboxProps {
 	/**
 	 * Checkbox disable
@@ -27,7 +30,7 @@ export interface CheckboxProps {
 	/**
 	 * Checkbox checked
 	 */
-	checked: null | boolean | (string | number)[];
+	checked: Checked;
 	/**
 	 * Checkbox name
 	 */
@@ -44,36 +47,41 @@ const SCheckbox = ({
 	value,
 	onChange,
 }: CheckboxProps) => {
-	const [internalChecked, setInternalChecked] = useState<
-		CheckboxProps['checked']
-	>(Array.isArray(checked) ? checked.includes(value!) : checked);
+	const checkType = useCallback(
+		(checkValue: Checked) =>
+			Array.isArray(checkValue) ? checkValue.includes(value!) : checkValue,
+		[value]
+	);
+
+	const [internalChecked, setInternalChecked] = useState<Checked>(
+		checkType(checked)
+	);
 
 	useEffect(() => {
-		setInternalChecked(
-			Array.isArray(checked) ? checked.includes(value!) : checked
-		);
-	}, [checked, value]);
+		if (disabled) return;
+
+		setInternalChecked(checkType(disabled));
+	}, [checkType, disabled]);
 
 	const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
 		if (disabled) return;
 
 		const targetChecked = event.target.checked;
+		const isArrayChecked = (checkValue: Checked) => Array.isArray(checkValue);
+
 		let newChecked: boolean | (string | number)[] = targetChecked;
 
 		if (value !== undefined) {
-			if (Array.isArray(checked)) {
+			if (isArrayChecked(checked)) {
 				newChecked = targetChecked
 					? [...new Set([...checked, value])]
 					: checked.filter((item) => item !== value);
-				console.log('newChecked : ', newChecked);
 			} else {
 				newChecked = targetChecked ? [value] : [];
 			}
 		}
 
-		setInternalChecked(
-			Array.isArray(newChecked) ? newChecked.includes(value!) : !!newChecked
-		);
+		setInternalChecked(checkType(newChecked));
 		onChange?.(newChecked);
 	};
 
