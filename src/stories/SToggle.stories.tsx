@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from '@storybook/test';
-import { useEffect, useState } from 'storybook/internal/preview-api';
 
 import SToggle, { type ToggleProps } from '../components/SToggle';
 
