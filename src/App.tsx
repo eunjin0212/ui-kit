@@ -280,18 +280,18 @@ function App() {
       />
      </div>
     </div>
-    <div className='flex flex-col gap-12pxr p-16pxr items-center'>
+    <div className='flex flex-col items-center gap-12pxr p-16pxr'>
      <div>
       <b>Tooltip</b>
      </div>
      <div className='inline-flex items-center gap-8pxr'>
-      <STooltip location='left' button={<Setting24 />}>
+      <STooltip location='right' button={<Setting24 />} useToggle>
        <ul>
         {[
          'Pizza ipsum dolor meat lovers buffalo.',
          'Mouth ipsum parmesan Hawaiian spinach.',
          'NY bell pan bbq crust lovers green rib Hawaiian.',
-         'Party Chicago personal tomatoes pan rib',
+         'Party Chicago personal tomatoes pan rib rib rib',
          'peppers sauce broccoli and.',
          'Pizza ham broccoli large pan platter thin tossed.',
          'Personal party hand sauce pesto wing.',

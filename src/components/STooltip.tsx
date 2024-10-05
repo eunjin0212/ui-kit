@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { Close12 } from '../assets/CloseIcon';
 
-interface TooltipProps {
+export interface TooltipProps {
  children: ReactNode;
- button: string | JSX.Element;
+ button: string | ReactNode;
  /**
   * @description The location where the tooltip appears.
   * @default 'top'
   */
  location?: 'top' | 'bottom' | 'right' | 'left'
+ useToggle?: boolean;
+ title?: string
+ actions?: ReactNode[]
 }
 
 const initParentDOMRect = {
@@ -24,12 +28,12 @@ const initParentDOMRect = {
 
 const initSize = { width: 0, height: 0 }
 
-const STooltip = ({ children, button, location = 'top' }: TooltipProps) => {
+const STooltip = ({ children, button, location = 'top', useToggle = false, title, actions }: TooltipProps) => {
  const [hover, setHover] = useState(false)
  const [position, setPosition] = useState<Omit<DOMRect, 'toJSON'>>(initParentDOMRect);
  const [tooltipSize, setTooltipSize] = useState<typeof initSize>(initSize);
 
- const buttonRef = useRef<HTMLButtonElement>(null)
+ const buttonRef = useRef<HTMLDivElement>(null)
  const tooltipRef = useRef<HTMLElement>(null)
 
  const updatePositionAndSize = useCallback(() => {
@@ -90,17 +94,17 @@ const STooltip = ({ children, button, location = 'top' }: TooltipProps) => {
 
  const arrowClass = useMemo(() => {
   return {
-   top: '-bottom-12pxr left-1/2 -translate-x-1/2',
-   bottom: '-top-12pxr left-1/2 -translate-x-1/2',
+   top: '-bottom-8pxr left-1/2 -translate-x-1/2',
+   bottom: '-top-8pxr left-1/2 -translate-x-1/2',
    right: '-left-8pxr top-1/2 -translate-y-1/2',
    left: '-right-8pxr top-1/2 -translate-y-1/2',
   }
  }, []);
  return (
-  <button
+  <div
    ref={buttonRef}
    onMouseOver={() => handleHover(true)}
-   onMouseOut={() => handleHover(false)}
+   onMouseOut={() => !useToggle && handleHover(false)}
    className='relative'
   >{button}
    {hover && createPortal(
@@ -113,11 +117,21 @@ const STooltip = ({ children, button, location = 'top' }: TooltipProps) => {
       arrowClass[location],
       'absolute w-18pxr h-18pxr inline-block bg-Blue_B_Darken-2 transform rotate-45 rounded-2pxr'
      ].join(' ')}></span>
-     <div className='font-medium text-white w-fit py-8pxr px-20pxr bg-Blue_B_Darken-2 rounded-4pxr'>
-      {children}
+     {useToggle && <button className='absolute text-white top-12pxr right-12pxr' onClick={() => handleHover(!hover)}>
+      <Close12 />
+     </button>}
+     <div className='font-medium text-white w-fit bg-Blue_B_Darken-2 rounded-4pxr'>
+      <div className={[
+        useToggle ? 'pl-20pxr pr-36pxr' : 'px-20pxr',
+        title ? 'py-12pxr' : 'py-8pxr',
+       ].join(' ')}>
+       {title && <strong className='leading-20pxr mb-4pxr'>{title}</strong>}
+       {children}
+      </div>
+      {actions && <div className='inline-flex items-center justify-between w-full px-20pxr pb-12pxr'>{actions.map((action) => action)}</div>}
      </div>
     </aside>, document.body)}
-  </button>)
+  </div>)
 }
 
 export default STooltip
