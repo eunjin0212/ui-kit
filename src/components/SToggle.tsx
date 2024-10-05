@@ -5,9 +5,9 @@ interface BaseToggleProps {
 	label?: string;
 	labelClass?: string;
 	value: Value;
-	onChange: (arg: Value) => void;
+	onChange?: (arg: Value) => void;
 	className?: string;
-	disable?: boolean;
+	disabled?: boolean;
 }
 
 interface SwitchToggleProps extends BaseToggleProps {
@@ -30,18 +30,18 @@ const SToggle = ({
 	value,
 	className,
 	type = 'switch',
-	disable = false,
+	disabled = false,
 	...props
 }: ToggleProps) => {
 	const [isToggled, setIsToggled] = useState<Value>(value);
 
 	useEffect(() => {
-		if (disable) return;
+		if (disabled) return;
 		setIsToggled(value);
-	}, [value, disable]);
+	}, [value, disabled]);
 
 	const handleToggle = () => {
-		if (disable) return;
+		if (disabled || !onChange) return;
 		onChange(!isToggled);
 	};
 
@@ -53,7 +53,7 @@ const SToggle = ({
 				type='checkbox'
 				checked={isToggled}
 				onChange={handleToggle}
-				disabled={disable}
+				disabled={disabled}
 				className='sr-only' // 화면에 보이지 않지만 스크린 리더가 접근할 수 있게 숨김
 			/>
 			{type === 'switch' ? (
@@ -61,7 +61,7 @@ const SToggle = ({
 					className={[
 						'relative flex h-20pxr w-36pxr cursor-pointer items-center rounded-full p-2pxr transition-colors duration-300 ease-in-out',
 						isToggled ? 'bg-Blue_C_Default' : 'bg-Grey_Lighten-2',
-						disable &&
+						disabled &&
 							`${isToggled ? 'bg-Blue_C_Lighten-4' : 'bg-Grey_Lighten-4'} cursor-not-allowed`,
 					].join(' ')}
 					onClick={handleToggle}
@@ -70,7 +70,7 @@ const SToggle = ({
 						className={[
 							'h-16pxr w-16pxr transform rounded-full bg-white shadow-[0px_2px_4px_0px_#00000029] duration-300 ease-in-out',
 							isToggled ? 'translate-x-16pxr' : 'translate-x-0',
-							disable ? 'bg-white' : 'bg-Grey_Lighten-5',
+							disabled ? 'bg-white' : 'bg-Grey_Lighten-5',
 						].join(' ')}
 					></span>
 				</div>
@@ -85,7 +85,7 @@ const SToggle = ({
 								isToggled
 									? 'text-Blue_C_Default before:border-Blue_C_Default'
 									: 'text-Grey_Darken-1 before:border-Grey_Darken-1',
-								disable &&
+         disabled &&
 									'cursor-not-allowed bg-Grey_Lighten-4 text-Grey_Default before:border-Grey_Lighten-2',
 							].join(' ')}
 						>

@@ -18,7 +18,7 @@ describe('STabs', () => {
 		return (
 			<STabs
 				tabs={tabs}
-				model={selectedTab}
+				value={selectedTab}
 				onChange={setSelectedTab}
 			>
 				<STabPanel value='tab1'>Tab1 Content</STabPanel>
@@ -46,7 +46,7 @@ describe('STabs', () => {
 		render(
 			<STabs
 				tabs={tabs}
-				model='tab1'
+				value='tab1'
 				onChange={handleChange}
 			>
 				<STabPanel value='tab1'>Tab1 Content</STabPanel>

@@ -26,9 +26,8 @@ describe('SToggle', () => {
 				type='button'
 				value={false}
 				label='Button Label'
-			>
-				button toggle
-			</SToggle>
+    buttonLabel='button toggle'
+			/>
 		);
 
 		const label = screen.getByText('Button Label');
@@ -63,6 +62,7 @@ describe('SToggle', () => {
 			<SToggle
 				type='button'
 				value={false}
+    buttonLabel='button'
 				onChange={onChangeMock}
 			/>
 		);
@@ -92,6 +92,7 @@ describe('SToggle', () => {
 				type='button'
 				value={false}
 				disabled
+    buttonLabel='button'
 			/>
 		);
 

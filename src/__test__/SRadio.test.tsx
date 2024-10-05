@@ -1,14 +1,13 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import SRadio, { RadioProps } from '../components/SRadio';
-import { useState } from 'react';
 import '@testing-library/jest-dom';
 
 describe('SRadio', () => {
 	const defaultProps: RadioProps = {
 		label: 'Test Radio',
 		name: 'testRadio',
-		model: 'option1',
+		checked: 'option1',
 		value: 'option1',
 		onChange: vi.fn(),
 	};
@@ -44,7 +43,7 @@ describe('SRadio', () => {
 		const { rerender } = render(
 			<SRadio
 				{...defaultProps}
-				model='option2'
+				checked='option2'
 			/>
 		);
 
@@ -54,7 +53,7 @@ describe('SRadio', () => {
 		rerender(
 			<SRadio
 				{...defaultProps}
-				model='option1'
+				checked='option1'
 			/>
 		);
 		expect(radio).toBeChecked();
