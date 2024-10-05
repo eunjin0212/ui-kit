@@ -90,17 +90,17 @@ const STooltip = ({ children, button, location = 'top' }: TooltipProps) => {
 
  const arrowClass = useMemo(() => {
   return {
-   top: 'border-x-8pxr border-t-12pxr -bottom-12pxr border-t-Blue_B_Darken-2 border-b-transparent border-x-transparent left-1/2 -translate-x-1/2',
-   bottom: 'border-x-8pxr border-b-12pxr -top-12pxr border-b-Blue_B_Darken-2 border-t-transparent border-x-transparent left-1/2 -translate-x-1/2',
-   right: 'border-y-8pxr border-r-12pxr -left-12pxr border-r-Blue_B_Darken-2 border-l-transparent border-y-transparent top-1/2 -translate-y-1/2',
-   left: 'border-y-8pxr border-l-12pxr -right-12pxr border-l-Blue_B_Darken-2 border-r-transparent border-y-transparent top-1/2 -translate-y-1/2',
+   top: '-bottom-12pxr left-1/2 -translate-x-1/2',
+   bottom: '-top-12pxr left-1/2 -translate-x-1/2',
+   right: '-left-8pxr top-1/2 -translate-y-1/2',
+   left: '-right-8pxr top-1/2 -translate-y-1/2',
   }
  }, []);
  return (
   <button
    ref={buttonRef}
    onMouseOver={() => handleHover(true)}
-   onMouseOut={() => handleHover(true)}
+   onMouseOut={() => handleHover(false)}
    className='relative'
   >{button}
    {hover && createPortal(
@@ -111,9 +111,9 @@ const STooltip = ({ children, button, location = 'top' }: TooltipProps) => {
     >
      <span className={[
       arrowClass[location],
-      'absolute w-0 h-0'
+      'absolute w-18pxr h-18pxr inline-block bg-Blue_B_Darken-2 transform rotate-45 rounded-2pxr'
      ].join(' ')}></span>
-     <div className='w-fit py-8pxr px-20pxr bg-Blue_B_Darken-2 text-white font-medium rounded-4pxr'>
+     <div className='font-medium text-white w-fit py-8pxr px-20pxr bg-Blue_B_Darken-2 rounded-4pxr'>
       {children}
      </div>
     </aside>, document.body)}
