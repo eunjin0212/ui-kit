@@ -49,6 +49,7 @@ const config: Config = {
 				tooltip: '2px 2px 8px 2px #00000033;',
 			},
 			colors: colors,
+   padding: sizes,
 			spacing: sizes,
 		},
 	},
