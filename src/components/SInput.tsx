@@ -147,7 +147,7 @@ const SInput = ({
 
 	return (
 		<div className={['s-input', className].join(' ')}>
-			<div className='s-input__inner flex h-28pxr items-center'>
+			<div className='flex items-center s-input__inner h-28pxr'>
 				{label && (
 					<label
 						htmlFor={label}

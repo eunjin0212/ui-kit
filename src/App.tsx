@@ -13,6 +13,7 @@ import STooltip from './components/STooltip';
 import SToggle from './components/SToggle';
 import SCaution from './components/SCaution';
 import SInput from './components/SInput';
+import STable from './components/STable';
 
 function App() {
 	const [checked, setChecked] = useState(false);
@@ -46,10 +47,6 @@ function App() {
 		{ label: 'item3', value: true },
 		{ label: 'item4', value: true },
 	];
-
-	const handleInput = (val: string) => {
-		setInputValue(val);
-	};
 
 	const [showTooltip, setShowTooltip] = useState<boolean>(false);
 
@@ -117,6 +114,58 @@ function App() {
 		setFormData(newFormData); // 상태 업데이트
 	};
 
+	const columns = [
+		{
+			label: '이름',
+			name: 'name',
+		},
+		{
+			label: '품목',
+			name: 'itemName',
+		},
+		{
+			label: '속성',
+			name: 'itemProperty',
+		},
+	];
+
+	const rows = [
+		{
+			name: 'name',
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+  {
+			name: 'name',
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+  {
+			name: 'name',
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+  {
+			name: 'name',
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+  {
+			name: 'name',
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+  {
+			name: 'name',
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+  {
+			name: 'name',
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+	];
 	return (
 		<>
 			<main>
@@ -186,6 +235,16 @@ function App() {
 						type='password'
 						placeholder='키워드를 입력해주세요.'
 						onChange={(evt) => setInputValue(evt.target.value)}
+					/>
+				</div>
+
+				<div className='flex flex-col gap-12pxr p-16pxr'>
+					<STable
+						columns={columns}
+						rows={rows}
+						stickyHeader
+      resizable
+      className='h-200pxr'
 					/>
 				</div>
 
