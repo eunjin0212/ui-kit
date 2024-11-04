@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import Icon from './Icon';
+import Pagination, { type PaginationType } from './Pagination';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Row = any;
@@ -25,6 +26,10 @@ export interface TableProps {
 	loading?: boolean;
 	className?: string;
 	noDataLabel?: string;
+	tableClasses?: string;
+ pagination: PaginationType;
+ rowsPerPageOptions?: number[];
+	setPagination: Dispatch<SetStateAction<PaginationType>>;
 }
 
 const STable = ({
@@ -35,10 +40,14 @@ const STable = ({
 	resizable = false,
 	stickyHeader = false,
 	loading = false,
+	tableClasses = '',
+ pagination,
+ setPagination,
 }: TableProps) => {
 	const [colWidths, setColWidths] = useState<number[]>([]);
 	const [sortDirections, setSortDirections] = useState<string[]>([]);
 	const [sortedRows, setSortedRows] = useState<Row[]>(rows);
+	const [paginationValue] = useState<PaginationType>(pagination);
 
 	const handleSort = (index: number) => {
 		const newDirection = sortDirections[index] === 'asc' ? 'desc' : 'asc';
@@ -206,26 +215,33 @@ const STable = ({
 		));
 
 	return (
-		<div
-			className={[
-				's-table relative w-full rounded-8pxr border border-Grey_Lighten-3',
-				stickyHeader ? 'overflow-auto' : 'overflow-hidden',
-				className,
-			].join(' ')}
-		>
-			{loading && renderLoading()}
-
-			<table
+		<div className={`s-table ${className}`}>
+			<div
 				className={[
-					's-table__container min-w-full table-fixed border-separate border-spacing-0',
+					'relative w-full rounded-8pxr border border-Grey_Lighten-3',
+					stickyHeader ? 'overflow-auto' : 'overflow-hidden',
+					tableClasses,
 				].join(' ')}
 			>
-				<thead>
-					<tr className='border-b border-b-Grey_Lighten-3'>{renderHeader()}</tr>
-				</thead>
+				{loading && renderLoading()}
+				<table
+					className={[
+						's-table__container min-w-full table-fixed border-separate border-spacing-0',
+					].join(' ')}
+				>
+					<thead>
+						<tr className='border-b border-b-Grey_Lighten-3'>{renderHeader()}</tr>
+					</thead>
 
-				<tbody>{rows.length === 0 ? renderNoData() : renderRows()}</tbody>
-			</table>
+					<tbody>{rows.length === 0 ? renderNoData() : renderRows()}</tbody>
+				</table>
+			</div>
+			{paginationValue.lastPage > 0 && <Pagination
+				pagination={paginationValue}
+				total={sortedRows.length}
+				setPagination={setPagination}
+				rowsPerPageOptions={[10, 20, 50]}
+			/>}
 		</div>
 	);
 };

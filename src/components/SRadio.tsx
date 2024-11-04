@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ChangeEvent } from 'react';
 
 export interface RadioProps {
 	label: string;
@@ -25,7 +25,7 @@ const SRadio = ({
 		setInternalChecked(checked);
 	}, [checked]);
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		if (disabled) return;
 		const targetValue = e.target.value;
 		onChange?.(targetValue);

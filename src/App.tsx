@@ -14,6 +14,7 @@ import SToggle from './components/SToggle';
 import SCaution from './components/SCaution';
 import SInput from './components/SInput';
 import STable, { Column } from './components/STable';
+import { PaginationType } from './components/Pagination';
 
 function App() {
 	const [checked, setChecked] = useState(false);
@@ -21,7 +22,11 @@ function App() {
 	const [selectedValue, setSelectedValue] = useState<string | number>('item3');
 	const [tabValue, setTabValue] = useState('tab1');
 	const [inputValue, setInputValue] = useState('');
-
+ const [pagination, setPagination] = useState<PaginationType>({
+  lastPage: 11,
+  page: 1,
+  rowsPerPage: 4,
+ })
 	const handleClick = () => {
 		setChecked(!checked);
 	};
@@ -270,6 +275,8 @@ function App() {
 						rows={rows}
 						resizable
 						className='h-200pxr'
+      pagination={pagination}
+      setPagination={setPagination}
 					/>
 				</div>
 
