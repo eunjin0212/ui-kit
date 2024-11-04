@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Icon from './Icon';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Row = Record<string, any>;
+type Row = any;
 
 export interface Column {
 	label: string;
 	name: string;
 	field?: ((row: Row) => string) | string;
-	headerClass?: string;
-	cellClass?: string;
+	headerClasses?: string;
+	classes?: string | void;
 	format?: (val: string, row: Row) => string;
 	align?: 'center' | 'left' | 'right';
+	style?: string;
+	headerStyle?: string;
+	sortable?: boolean;
 }
 
 export interface TableProps {
@@ -18,6 +22,7 @@ export interface TableProps {
 	rows: Row[];
 	resizable?: boolean;
 	stickyHeader?: boolean;
+	loading?: boolean;
 	className?: string;
 	noDataLabel?: string;
 }
@@ -29,121 +34,197 @@ const STable = ({
 	noDataLabel = '데이터가 없습니다.',
 	resizable = false,
 	stickyHeader = false,
+	loading = false,
 }: TableProps) => {
- const [colWidths, setColWidths] = useState<number[]>(columns.map(() => 100));
-	const tdClass = 'py-12pxr px-16pxr leading-20pxr';
-	const align = {
-		center: 'text-center justify-center',
-		left: 'text-left justify-start',
-		right: 'text-right justify-end',
+	const [colWidths, setColWidths] = useState<number[]>([]);
+	const [sortDirections, setSortDirections] = useState<string[]>([]);
+	const [sortedRows, setSortedRows] = useState<Row[]>(rows);
+
+	const handleSort = (index: number) => {
+		const newDirection = sortDirections[index] === 'asc' ? 'desc' : 'asc';
+		setSortDirections((prevDirections) =>
+			prevDirections.map((direction, idx) =>
+				idx === index ? newDirection : direction
+			)
+		);
+
+		const column = columns[index];
+		const sortedData = [...sortedRows].sort((a, b) => {
+			const field = column.field || column.name;
+			const aValue = typeof field === 'function' ? field(a) : a[field];
+			const bValue = typeof field === 'function' ? field(b) : b[field];
+
+			if (newDirection === 'asc') return aValue > bValue ? 1 : -1;
+			return aValue < bValue ? 1 : -1;
+		});
+
+		setSortedRows(sortedData);
 	};
 
-	const tableBorder = 'border-b border-b-Grey_Lighten-3';
+	const handleResize = (index: number, event: React.MouseEvent) => {
+		const startX = event.clientX;
+		const startWidth = colWidths[index];
 
-const handleMouseDown = (e: React.MouseEvent, index: number) => {
- const startX = e.clientX;
- const startWidth = colWidths[index];
+		const handleMouseMove = (moveEvent: MouseEvent) => {
+			const newWidth = Math.max(startWidth + moveEvent.clientX - startX, 50);
+			setColWidths(
+				(prevWidths) =>
+					prevWidths.map((width, idx) => (idx === index ? newWidth : width)) // 최소 너비 50px
+			);
+		};
 
- const onMouseMove = (e: MouseEvent) => {
-   const newWidth = startWidth + (e.clientX - startX);
-   setColWidths((prevWidths) => {
-     const updatedWidths = [...prevWidths];
-     const MIN_WIDTH = 50
-     updatedWidths[index] = Math.max(newWidth, MIN_WIDTH);
-     return updatedWidths;
-   });
- };
+		const handleMouseUp = () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
+		};
 
- const onMouseUp = () => {
-   document.removeEventListener('mousemove', onMouseMove);
-   document.removeEventListener('mouseup', onMouseUp);
- };
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
+	};
 
- document.addEventListener('mousemove', onMouseMove);
- document.addEventListener('mouseup', onMouseUp);
-};
+	useEffect(() => {
+		setColWidths(columns.map(() => 100));
+		setSortDirections(columns.map((col) => (col.sortable ? 'asc' : '')));
+		setSortedRows(rows);
+	}, [columns, rows]);
+
+	const loadingStyle = {
+		'--_m':
+			'conic-gradient(#0000 10%,#000),linear-gradient(#000 0 0) content-box',
+		WebkitMask: 'var(--_m)',
+		mask: 'var(--_m)',
+		WebkitMaskComposite: 'source-out',
+		maskComposite: 'subtract',
+	};
+
+	const alignClass = {
+		left: 'text-left',
+		center: 'text-center',
+		right: 'text-right',
+	};
+
+	const alignFlexClass = {
+		left: 'justify-start',
+		center: 'justify-center',
+		right: 'justify-end',
+	};
+
+	const renderLoading = () => (
+		<div className='s-table__loading absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-40'>
+			<div
+				className='loading aspect-square w-50pxr animate-spin rounded-full bg-positive p-8pxr transition-all'
+				style={loadingStyle}
+			></div>
+		</div>
+	);
+
+	const renderNoData = () => (
+		<tr>
+			<td
+				colSpan={columns.length}
+				className='before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-full before:bg-white before:bg-opacity-40 before:content-[""]'
+			>
+				<div className='relative z-50 flex min-h-100pxr items-center justify-center text-Grey_Default '>
+					{noDataLabel}
+				</div>
+			</td>
+		</tr>
+	);
+
+	const renderCell = (row: Row, column: Column, rowIndex: number) => {
+		const rowData = column.field
+			? typeof column.field === 'string'
+				? row[column.field]
+				: column.field(row)
+			: row[column.name];
+		const formatTd = column.format ? column.format(rowData, row) : rowData;
+
+		return (
+			<td
+				key={column.label}
+				className={[
+					'h-48pxr bg-white px-16pxr py-0',
+					alignClass[column.align || 'left'],
+					rowIndex > 0 ? 'border-t border-t-Grey_Lighten-3' : '',
+				].join(' ')}
+			>
+				{formatTd}
+			</td>
+		);
+	};
+
+	const renderRows = () =>
+		sortedRows.map((row, rowIndex) => (
+			<tr
+				key={rowIndex}
+				className='hover:bg-Grey_Lighten-6'
+			>
+				{columns.map((column) => renderCell(row, column, rowIndex))}
+			</tr>
+		));
+
+	const renderHeader = () =>
+		columns.map((column, colIdx) => (
+			<th
+				key={column.label}
+				className={[
+					'relative h-36pxr border-b border-b-Grey_Lighten-3 bg-Blue_C_Lighten-8 px-16pxr py-0 font-medium',
+					stickyHeader ? 'sticky top-0' : '',
+				].join(' ')}
+				style={{
+					minWidth: `${(colWidths[colIdx] as number) / 12}rem`,
+					maxWidth: `${(colWidths[colIdx] as number) / 12}rem`,
+					width: `${(colWidths[colIdx] as number) / 12}rem`,
+				}}
+			>
+				<div
+					className={[
+						'flex flex-nowrap items-center',
+						alignFlexClass[column.align || 'left'],
+					].join(' ')}
+				>
+					<span className='truncate'>{column.label}</span>
+					{column.sortable && (
+						<button
+							className='ml-4pxr'
+							onClick={() => handleSort(colIdx)}
+						>
+							<Icon
+								name={sortDirections[colIdx] === 'asc' ? 'LineDown_12' : 'LineUp_12'}
+								color='Grey_Default'
+							/>
+						</button>
+					)}
+				</div>
+				{resizable && colIdx !== columns.length - 1 && (
+					<div
+						className='absolute right-0 top-1/2 z-50 h-16pxr w-4pxr -translate-y-1/2 cursor-col-resize border-l border-r border-Grey_Lighten-2'
+						onMouseDown={(evt) => handleResize(colIdx, evt)}
+					/>
+				)}
+			</th>
+		));
+
 	return (
 		<div
 			className={[
-				'relative w-full rounded-8pxr border border-Grey_Lighten-3',
+				's-table relative w-full rounded-8pxr border border-Grey_Lighten-3',
 				stickyHeader ? 'overflow-auto' : 'overflow-hidden',
 				className,
 			].join(' ')}
 		>
+			{loading && renderLoading()}
+
 			<table
-				className={['w-full border-collapse'].join(' ')}
+				className={[
+					's-table__container min-w-full table-fixed border-separate border-spacing-0',
+				].join(' ')}
 			>
-				<thead
-					className={[
-						'bg-Blue_C_Lighten-8',
-						tableBorder,
-						stickyHeader ? 'sticky top-0' : '',
-					].join(' ')}
-				>
-					<tr>
-						{columns.map((col, colIdx) => (
-							<th
-								key={col.name}
-								className={[
-									'px-16pxr py-8pxr font-medium leading-20pxr text-Grey_Darken-5',
-									col.headerClass,
-									!rows.length && 'opacity-40',
-								].join(' ')}
-        style={{ width: `${colWidths[colIdx]}px` }}
-							>
-								<div className={['inline-flex w-full relative', align[col.align || 'center']].join(' ')}>
-								{colIdx !== columns.length - 1	&& resizable && <div
-										className={[
-											'absolute cursor-pointer h-16pxr w-4pxr rounded-8pxr border-x border-x-Grey_Lighten-2 right-0 transform translate-x-2',
-										].join(' ')}
-          onMouseDown={(e) => handleMouseDown(e, colIdx)}
-									></div>}
-									{col.label}
-								</div>
-							</th>
-						))}
-					</tr>
+				<thead>
+					<tr className='border-b border-b-Grey_Lighten-3'>{renderHeader()}</tr>
 				</thead>
-				<tbody>
-					{rows.length ? (
-						rows.map((row, rowIdx) => (
-							<tr
-								key={rowIdx}
-								className={[tableBorder, 'last-of-type:border-b-0'].join(' ')}
-							>
-								{columns.map((col) => {
-									const rowData = col.field
-										? typeof col.field === 'string'
-											? row[col.field]
-											: col.field(row)
-										: row[col.name];
-									const formatTd = col.format ? col.format(rowData, row) : rowData;
-									return (
-										<td
-											key={col.name}
-											className={[
-												col.cellClass,
-												align[col.align || 'center'],
-												tdClass,
-											].join(' ')}
-										>
-											{formatTd}
-										</td>
-									);
-								})}
-							</tr>
-						))
-					) : (
-						<tr className='h-150pxr'>
-							<td
-								colSpan={columns.length}
-								className='text-center text-Grey_Default'
-							>
-								{noDataLabel}
-							</td>
-						</tr>
-					)}
-				</tbody>
+
+				<tbody>{rows.length === 0 ? renderNoData() : renderRows()}</tbody>
 			</table>
 		</div>
 	);

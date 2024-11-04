@@ -13,7 +13,7 @@ import STooltip from './components/STooltip';
 import SToggle from './components/SToggle';
 import SCaution from './components/SCaution';
 import SInput from './components/SInput';
-import STable from './components/STable';
+import STable, { Column } from './components/STable';
 
 function App() {
 	const [checked, setChecked] = useState(false);
@@ -114,10 +114,72 @@ function App() {
 		setFormData(newFormData); // 상태 업데이트
 	};
 
-	const columns = [
+	const rows = [
+		{
+			name: 'name',
+			items: {
+				name: 'name1',
+			},
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+		{
+			name: 'name',
+
+			items: {
+				name: 'name2',
+			},
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+		{
+			name: 'name',
+			items: {
+				name: 'name3',
+			},
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+		{
+			name: 'name',
+			items: {
+				name: 'name4',
+			},
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+		{
+			name: 'name',
+			items: {
+				name: 'name5',
+			},
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+		{
+			name: 'name',
+			items: {
+				name: 'name6',
+			},
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+		{
+			name: 'name',
+			items: {
+				name: 'name7',
+			},
+			itemName: 'itemName',
+			itemProperty: 'itemProperty',
+		},
+	];
+
+ const columns: Column[] = [
 		{
 			label: '이름',
 			name: 'name',
+   field: (row: typeof rows[0]) => row.items.name,
+   sortable: true,
 		},
 		{
 			label: '품목',
@@ -129,43 +191,7 @@ function App() {
 		},
 	];
 
-	const rows = [
-		{
-			name: 'name',
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-  {
-			name: 'name',
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-  {
-			name: 'name',
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-  {
-			name: 'name',
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-  {
-			name: 'name',
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-  {
-			name: 'name',
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-  {
-			name: 'name',
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-	];
+
 	return (
 		<>
 			<main>
@@ -242,9 +268,8 @@ function App() {
 					<STable
 						columns={columns}
 						rows={rows}
-						stickyHeader
-      resizable
-      className='h-200pxr'
+						resizable
+						className='h-200pxr'
 					/>
 				</div>
 

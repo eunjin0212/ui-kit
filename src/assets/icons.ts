@@ -3,6 +3,8 @@ import { ArrowDown24 } from './ArrowDownIcon';
 import { Check12 } from './CheckIcon';
 import { Close12 } from './CloseIcon';
 import { HelpOutline16, HelpOutline24 } from './HelpOutlineIcon';
+import { LineDown12 } from './LineDownIcon';
+import { LineUp12 } from './LineUpIcon';
 import { Minus8, Minus12 } from './MinusIcon';
 import { NotificationOutline24 } from './NotificationOulineIcon';
 import { Setting24 } from './SettingIcon';
@@ -26,6 +28,12 @@ export const icons: Record<
 		16: HelpOutline16,
 		24: HelpOutline24,
 	},
+	LineDown: {
+		12: LineDown12,
+	},
+	LineUp: {
+		12: LineUp12,
+	},
 	Minus: {
 		8: Minus8,
 		12: Minus12,
@@ -41,5 +49,5 @@ export const icons: Record<
 	},
 	VisibilityOn: {
 		16: VisibilityOn16,
-	}
+	},
 };
