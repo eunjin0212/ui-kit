@@ -14,7 +14,7 @@ import SToggle from './components/SToggle';
 import SCaution from './components/SCaution';
 import SInput from './components/SInput';
 import STable, { Column } from './components/STable';
-import { PaginationType } from './components/Pagination';
+import { PaginationType } from './components/SPagination';
 
 function App() {
 	const [checked, setChecked] = useState(false);
@@ -25,7 +25,7 @@ function App() {
  const [pagination, setPagination] = useState<PaginationType>({
   lastPage: 11,
   page: 1,
-  rowsPerPage: 4,
+  perPage: 10,
  })
 	const handleClick = () => {
 		setChecked(!checked);
@@ -274,6 +274,7 @@ function App() {
 						columns={columns}
 						rows={rows}
 						resizable
+      stickyHeader
 						className='h-200pxr'
       pagination={pagination}
       setPagination={setPagination}

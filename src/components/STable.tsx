@@ -1,6 +1,6 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react';
+import { useState, useEffect, Dispatch } from 'react';
 import Icon from './Icon';
-import Pagination, { type PaginationType } from './Pagination';
+import Pagination, { type PaginationType } from './SPagination';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Row = any;
@@ -29,7 +29,7 @@ export interface TableProps {
 	tableClasses?: string;
  pagination: PaginationType;
  rowsPerPageOptions?: number[];
-	setPagination: Dispatch<SetStateAction<PaginationType>>;
+	setPagination: Dispatch<PaginationType>;
 }
 
 const STable = ({
@@ -42,7 +42,6 @@ const STable = ({
 	loading = false,
 	tableClasses = '',
  pagination,
- setPagination,
 }: TableProps) => {
 	const [colWidths, setColWidths] = useState<number[]>([]);
 	const [sortDirections, setSortDirections] = useState<string[]>([]);
@@ -218,7 +217,7 @@ const STable = ({
 		<div className={`s-table ${className}`}>
 			<div
 				className={[
-					'relative w-full rounded-8pxr border border-Grey_Lighten-3',
+					'relative w-full h-full rounded-8pxr border border-Grey_Lighten-3',
 					stickyHeader ? 'overflow-auto' : 'overflow-hidden',
 					tableClasses,
 				].join(' ')}
@@ -237,10 +236,7 @@ const STable = ({
 				</table>
 			</div>
 			{paginationValue.lastPage > 0 && <Pagination
-				pagination={paginationValue}
-				total={sortedRows.length}
-				setPagination={setPagination}
-				rowsPerPageOptions={[10, 20, 50]}
+     pagination={paginationValue}
 			/>}
 		</div>
 	);
