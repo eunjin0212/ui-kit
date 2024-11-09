@@ -1,5 +1,9 @@
 import { SVGProps } from 'react';
 import { ArrowDown24 } from './ArrowDownIcon';
+import { ArrowLeftEnd12 } from './ArrowLeftEndIcon';
+import { ArrowLeft12 } from './ArrowLeftIcon';
+import { ArrowRightEnd12 } from './ArrowRightEndIcon';
+import { ArrowRight12 } from './ArrowRightIcon';
 import { Check12 } from './CheckIcon';
 import { Close12 } from './CloseIcon';
 import { HelpOutline16, HelpOutline24 } from './HelpOutlineIcon';
@@ -17,6 +21,18 @@ export const icons: Record<
 > = {
 	ArrowDown: {
 		24: ArrowDown24,
+	},
+	ArrowLeftEnd: {
+		12: ArrowLeftEnd12,
+	},
+	ArrowLeft: {
+		12: ArrowLeft12,
+	},
+	ArrowRightEnd: {
+		12: ArrowRightEnd12,
+	},
+	ArrowRight: {
+		12: ArrowRight12,
 	},
 	Check: {
 		12: Check12,
