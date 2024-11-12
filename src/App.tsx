@@ -16,6 +16,15 @@ import SInput from './components/SInput';
 import STable, { Column } from './components/STable';
 import { PaginationType } from './components/SPagination';
 
+const rows = Array.from({length: 1000}).map((_, idx) => ({
+ name: 'name',
+ items: {
+  name: `name${idx + 1}`,
+ },
+ itemName: 'itemName',
+ itemProperty: 'itemProperty',
+}))
+
 function App() {
 	const [checked, setChecked] = useState(false);
 	const [toggle, setToggle] = useState(false);
@@ -23,9 +32,9 @@ function App() {
 	const [tabValue, setTabValue] = useState('tab1');
 	const [inputValue, setInputValue] = useState('');
  const [pagination, setPagination] = useState<PaginationType>({
-  lastPage: 11,
+  lastPage: 2,
   page: 1,
-  perPage: 10,
+  perPage: 50, // 데이터는 50개씩 자르겠다.
  })
 	const handleClick = () => {
 		setChecked(!checked);
@@ -119,66 +128,6 @@ function App() {
 		setFormData(newFormData); // 상태 업데이트
 	};
 
-	const rows = [
-		{
-			name: 'name',
-			items: {
-				name: 'name1',
-			},
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-		{
-			name: 'name',
-
-			items: {
-				name: 'name2',
-			},
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-		{
-			name: 'name',
-			items: {
-				name: 'name3',
-			},
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-		{
-			name: 'name',
-			items: {
-				name: 'name4',
-			},
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-		{
-			name: 'name',
-			items: {
-				name: 'name5',
-			},
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-		{
-			name: 'name',
-			items: {
-				name: 'name6',
-			},
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-		{
-			name: 'name',
-			items: {
-				name: 'name7',
-			},
-			itemName: 'itemName',
-			itemProperty: 'itemProperty',
-		},
-	];
-
  const columns: Column[] = [
 		{
 			label: '이름',
@@ -195,7 +144,6 @@ function App() {
 			name: 'itemProperty',
 		},
 	];
-
 
 	return (
 		<>

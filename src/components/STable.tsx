@@ -1,4 +1,4 @@
-import { useState, useEffect, Dispatch } from 'react';
+import { useState, useEffect, Dispatch, useMemo } from 'react';
 import Icon from './Icon';
 import Pagination, { type PaginationType } from './SPagination';
 
@@ -27,8 +27,8 @@ export interface TableProps {
 	className?: string;
 	noDataLabel?: string;
 	tableClasses?: string;
- pagination: PaginationType;
- rowsPerPageOptions?: number[];
+	pagination: PaginationType;
+	rowsPerPageOptions?: number[];
 	setPagination: Dispatch<PaginationType>;
 }
 
@@ -41,12 +41,21 @@ const STable = ({
 	stickyHeader = false,
 	loading = false,
 	tableClasses = '',
- pagination,
+	pagination,
+	setPagination,
 }: TableProps) => {
 	const [colWidths, setColWidths] = useState<number[]>([]);
 	const [sortDirections, setSortDirections] = useState<string[]>([]);
 	const [sortedRows, setSortedRows] = useState<Row[]>(rows);
-	const [paginationValue] = useState<PaginationType>(pagination);
+
+	const paginationValue = useMemo(() => {
+		const getLastPage = Math.ceil(rows.length / pagination.perPage);
+		return {
+			page: pagination.page,
+			perPage: Math.min(pagination.perPage, 10),
+			lastPage: Math.max(getLastPage, pagination.lastPage),
+		};
+	}, [pagination.lastPage, pagination.page, pagination.perPage, rows.length]);
 
 	const handleSort = (index: number) => {
 		const newDirection = sortDirections[index] === 'asc' ? 'desc' : 'asc';
@@ -59,11 +68,16 @@ const STable = ({
 		const column = columns[index];
 		const sortedData = [...sortedRows].sort((a, b) => {
 			const field = column.field || column.name;
-			const aValue = typeof field === 'function' ? field(a) : a[field];
-			const bValue = typeof field === 'function' ? field(b) : b[field];
-
-			if (newDirection === 'asc') return aValue > bValue ? 1 : -1;
-			return aValue < bValue ? 1 : -1;
+			const fieldType = typeof field === 'function';
+			const aValue = fieldType ? field(a) : a[field];
+			const bValue = fieldType ? field(b) : b[field];
+			return newDirection === 'asc'
+				? aValue > bValue
+					? 1
+					: -1
+				: aValue < bValue
+					? 1
+					: -1;
 		});
 
 		setSortedRows(sortedData);
@@ -161,8 +175,11 @@ const STable = ({
 		);
 	};
 
-	const renderRows = () =>
-		sortedRows.map((row, rowIndex) => (
+	const renderRows = () => {
+		const start = (pagination.page - 1) * pagination.perPage;
+		const end = start + pagination.perPage;
+		const pagingRow = sortedRows.slice(start, end);
+		return pagingRow.map((row, rowIndex) => (
 			<tr
 				key={rowIndex}
 				className='hover:bg-Grey_Lighten-6'
@@ -170,7 +187,7 @@ const STable = ({
 				{columns.map((column) => renderCell(row, column, rowIndex))}
 			</tr>
 		));
-
+	};
 	const renderHeader = () =>
 		columns.map((column, colIdx) => (
 			<th
@@ -217,7 +234,7 @@ const STable = ({
 		<div className={`s-table ${className}`}>
 			<div
 				className={[
-					'relative w-full h-full rounded-8pxr border border-Grey_Lighten-3',
+					'relative h-full w-full rounded-8pxr border border-Grey_Lighten-3',
 					stickyHeader ? 'overflow-auto' : 'overflow-hidden',
 					tableClasses,
 				].join(' ')}
@@ -235,9 +252,15 @@ const STable = ({
 					<tbody>{rows.length === 0 ? renderNoData() : renderRows()}</tbody>
 				</table>
 			</div>
-			{paginationValue.lastPage > 0 && <Pagination
-     pagination={paginationValue}
-			/>}
+			{pagination.lastPage > 0 && (
+				<Pagination
+					className='h-60pxr rounded-8pxr border border-t-0 border-Grey_Lighten-3 bg-Grey_Lighten-6'
+					pagination={paginationValue}
+					setPagination={(pageObj) =>
+						setPagination({ ...pagination, page: pageObj.page })
+					}
+				/>
+			)}
 		</div>
 	);
 };
