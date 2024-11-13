@@ -13,17 +13,17 @@ import STooltip from './components/STooltip';
 import SToggle from './components/SToggle';
 import SCaution from './components/SCaution';
 import SInput from './components/SInput';
-import STable, { Column } from './components/STable';
+import STable, { type Column } from './components/STable';
 import { PaginationType } from './components/SPagination';
 
-const rows = Array.from({length: 1000}).map((_, idx) => ({
- name: 'name',
- items: {
-  name: `name${idx + 1}`,
- },
- itemName: 'itemName',
- itemProperty: 'itemProperty',
-}))
+const rows = Array.from({ length: 1000 }).map((_, idx) => ({
+	name: 'name',
+	items: {
+		name: `name${idx + 1}`,
+	},
+	itemName: 'itemName',
+	itemProperty: 'itemProperty',
+}));
 
 function App() {
 	const [checked, setChecked] = useState(false);
@@ -31,11 +31,17 @@ function App() {
 	const [selectedValue, setSelectedValue] = useState<string | number>('item3');
 	const [tabValue, setTabValue] = useState('tab1');
 	const [inputValue, setInputValue] = useState('');
- const [pagination, setPagination] = useState<PaginationType>({
-  lastPage: 2,
-  page: 1,
-  perPage: 50, // 데이터는 50개씩 자르겠다.
- })
+	const [pagination, setPagination] = useState<PaginationType>({
+		lastPage: 10,
+		page: 1,
+		perPage: 100, // 데이터는 50개씩 자르겠다.
+	});
+
+ const [paginationWithSingle, setPaginationWithSingle] = useState<PaginationType>({
+		lastPage: 2,
+		page: 1,
+		perPage: 1, // 데이터는 50개씩 자르겠다.
+	});
 	const handleClick = () => {
 		setChecked(!checked);
 	};
@@ -128,12 +134,12 @@ function App() {
 		setFormData(newFormData); // 상태 업데이트
 	};
 
- const columns: Column[] = [
+	const columns: Column[] = [
 		{
 			label: '이름',
 			name: 'name',
-   field: (row: typeof rows[0]) => row.items.name,
-   sortable: true,
+			field: (row: (typeof rows)[0]) => row.items.name,
+			sortable: true,
 		},
 		{
 			label: '품목',
@@ -222,10 +228,18 @@ function App() {
 						columns={columns}
 						rows={rows}
 						resizable
-      stickyHeader
-						className='h-200pxr'
-      pagination={pagination}
-      setPagination={setPagination}
+						stickyHeader
+						className='h-400pxr'
+						pagination={pagination}
+						setPagination={setPagination}
+					/>
+
+					<STable
+						columns={columns}
+						rows={rows}
+						className='h-400pxr'
+						pagination={paginationWithSingle}
+						setPagination={setPaginationWithSingle}
 					/>
 				</div>
 

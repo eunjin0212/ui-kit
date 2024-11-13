@@ -234,8 +234,9 @@ const STable = ({
 		<div className={`s-table ${className}`}>
 			<div
 				className={[
-					'relative h-full w-full rounded-8pxr border border-Grey_Lighten-3',
+					'relative w-full rounded-8pxr border border-Grey_Lighten-3',
 					stickyHeader ? 'overflow-auto' : 'overflow-hidden',
+     pagination.lastPage > 0 ? 'h-[calc(100%-60px)]' : 'h-full',
 					tableClasses,
 				].join(' ')}
 			>
@@ -248,7 +249,6 @@ const STable = ({
 					<thead>
 						<tr className='border-b border-b-Grey_Lighten-3'>{renderHeader()}</tr>
 					</thead>
-
 					<tbody>{rows.length === 0 ? renderNoData() : renderRows()}</tbody>
 				</table>
 			</div>
