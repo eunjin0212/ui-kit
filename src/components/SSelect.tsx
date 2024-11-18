@@ -1,12 +1,7 @@
-import { useMemo } from 'react';
+import { Dispatch, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Icon from './Icon';
-
-type Option = {
- [x: string]: string | number; 
- label: string; 
- value: string | number
-} | string | number;
+import DropdownOptions, { type Option } from './DropdownOptions';
 
 export interface SelectProps {
 	value: Option;
@@ -17,7 +12,8 @@ export interface SelectProps {
 	optionValue?: string;
 	labelClassName?: string;
 	placeholder?: string;
- className?: string
+	className?: string;
+	setValue: Dispatch<Option>;
 }
 
 const SSelect = ({
@@ -29,8 +25,11 @@ const SSelect = ({
 	optionLabel = 'label',
 	optionValue = 'value',
 	placeholder = '선택',
- className = ''
+	className = '',
+	setValue,
 }: SelectProps) => {
+	const [isOpen, setOpen] = useState(false);
+	const selectRef = useRef<HTMLDivElement | null>(null);
 	const labelClass = useMemo(
 		() =>
 			[
@@ -44,22 +43,30 @@ const SSelect = ({
 		[disable, label]
 	);
 
- const displayLabel = useMemo(() => {
-  const foundOption = options.find((opt) => {
-    if (opt && typeof opt === 'object' && optionValue in opt) {
-     console.log(String(opt[optionValue]) === String(value), value)
-      return String(opt[optionValue]) === String(value);
-    }
+	const displayLabel = useMemo(() => {
+		const foundOption = options.find((opt) => {
+			if (opt && typeof opt === 'object' && optionValue in opt) {
+				return String(opt[optionValue]) === String(value);
+			}
 
-    return opt === value;
-  });
+			return opt === value;
+		});
 
-  if (foundOption && typeof foundOption === 'object' && optionLabel in foundOption) {
-    return foundOption[optionLabel] as string;
-  }
+		if (
+			foundOption &&
+			typeof foundOption === 'object' &&
+			optionLabel in foundOption
+		) {
+			return foundOption[optionLabel] as string;
+		}
 
-  return placeholder;
-}, [optionLabel, optionValue, options, placeholder, value]);
+		return placeholder;
+	}, [optionLabel, optionValue, options, placeholder, value]);
+
+	const handleClick = (arg?: Option) => {
+		setOpen((prev) => !prev);
+		if (arg) setValue(arg);
+	};
 
 	return (
 		<div className={['s-select', className].join(' ')}>
@@ -76,7 +83,11 @@ const SSelect = ({
 						{label}
 					</label>
 				)}
-				<div className='flex items-center justify-between bg-white border cursor-pointer rounded-2pxr flex-nowrap border-Grey_Lighten-1 py-4pxr px-8pxr text-Grey_Darken-4'>
+				<div
+					ref={selectRef}
+     onClick={() => handleClick()}
+					className='flex items-center justify-between bg-white border cursor-pointer flex-nowrap rounded-2pxr border-Grey_Lighten-1 px-8pxr py-4pxr text-Grey_Darken-4'
+				>
 					{displayLabel}
 					<Icon
 						name='ArrowDown_12'
@@ -84,6 +95,16 @@ const SSelect = ({
 					/>
 				</div>
 			</>
+			{isOpen &&
+				createPortal(
+					<DropdownOptions
+						onClick={handleClick}
+						options={options}
+						parentRef={selectRef}
+						open={isOpen}
+					/>,
+					document.body
+				)}
 		</div>
 	);
 };

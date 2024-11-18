@@ -261,7 +261,7 @@ const STable = ({
 					pagination={paginationValue}
      perPageOpts={perPageOpts}
 					setPagination={(pageObj) =>
-						setPagination({ ...pagination, page: pageObj.page })
+						setPagination({ ...pagination, page: pageObj.page, perPage: pageObj.perPage })
 					}
 				/>
 			)}

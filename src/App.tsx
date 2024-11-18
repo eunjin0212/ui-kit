@@ -537,7 +537,7 @@ function App() {
 								{ label: 'option 1', value: 1 },
 								{ label: 'option 2', value: 2 },
 							]}
-							onClick={() => ''}
+							onClick={(val) => console.log(val)}
 							size='xs'
 							label='dropdown'
 						/>
@@ -546,7 +546,7 @@ function App() {
 								{ label: 'option 1', value: 1, disable: true },
 								{ label: 'option 2', value: 2 },
 							]}
-							onClick={() => ''}
+							onClick={(val) => console.log(val)}
 							size='sm'
 							label='dropdown'
 						/>
@@ -555,7 +555,7 @@ function App() {
 								{ label: `<span style="color: red">option 1</span>`, value: 1 },
 								{ label: 'option 2', value: 2, display: false },
 							]}
-							onClick={() => ''}
+							onClick={(val) => console.log(val)}
 							size='md'
 							label='dropdown'
 						/>
@@ -566,7 +566,7 @@ function App() {
 								{ label: 'option 1', value: 1 },
 								{ label: 'option 2', value: 2 },
 							]}
-							onClick={() => ''}
+							onClick={(val) => console.log(val)}
 							outline
 							size='xs'
 							label='dropdown'
@@ -576,7 +576,7 @@ function App() {
 								{ label: 'option 1', value: 1, disable: true },
 								{ label: 'option 2', value: 2 },
 							]}
-							onClick={() => ''}
+							onClick={(val) => console.log(val)}
 							outline
 							size='sm'
 							label='dropdown'

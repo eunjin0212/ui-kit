@@ -1,6 +1,7 @@
 import { Dispatch, type ReactNode, useMemo } from 'react';
 import Icon from './Icon';
 import SSelect from './SSelect';
+import { Option } from './DropdownOptions';
 
 export interface PaginationType {
 	lastPage: number;
@@ -179,6 +180,9 @@ const SPagination = ({
      className='absolute w-120pxr top-16pxr right-20pxr'
 					options={perPageOptions}
 					value={pagination.perPage}
+     setValue={(val: Option) => {
+      setPagination({...pagination, perPage: +val.value})
+     }}
 				/>
 			) : null}
 		</div>
