@@ -30,6 +30,7 @@ export interface TableProps {
 	pagination: PaginationType;
 	rowsPerPageOptions?: number[];
 	setPagination: Dispatch<PaginationType>;
+ perPageOpts?: number[];
 }
 
 const STable = ({
@@ -42,6 +43,7 @@ const STable = ({
 	loading = false,
 	tableClasses = '',
 	pagination,
+ perPageOpts = [],
 	setPagination,
 }: TableProps) => {
 	const [colWidths, setColWidths] = useState<number[]>([]);
@@ -51,11 +53,11 @@ const STable = ({
 	const paginationValue = useMemo(() => {
 		const getLastPage = Math.ceil(rows.length / pagination.perPage);
 		return {
+   ...pagination,
 			page: pagination.page,
-			perPage: Math.min(pagination.perPage, 10),
 			lastPage: Math.max(getLastPage, pagination.lastPage),
 		};
-	}, [pagination.lastPage, pagination.page, pagination.perPage, rows.length]);
+	}, [pagination, rows.length]);
 
 	const handleSort = (index: number) => {
 		const newDirection = sortDirections[index] === 'asc' ? 'desc' : 'asc';
@@ -132,9 +134,9 @@ const STable = ({
 	};
 
 	const renderLoading = () => (
-		<div className='s-table__loading absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-40'>
+		<div className='absolute inset-0 z-50 flex items-center justify-center bg-white s-table__loading bg-opacity-40'>
 			<div
-				className='loading aspect-square w-50pxr animate-spin rounded-full bg-positive p-8pxr transition-all'
+				className='transition-all rounded-full loading aspect-square w-50pxr animate-spin bg-positive p-8pxr'
 				style={loadingStyle}
 			></div>
 		</div>
@@ -146,7 +148,7 @@ const STable = ({
 				colSpan={columns.length}
 				className='before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-full before:bg-white before:bg-opacity-40 before:content-[""]'
 			>
-				<div className='relative z-50 flex min-h-100pxr items-center justify-center text-Grey_Default '>
+				<div className='relative z-50 flex items-center justify-center min-h-100pxr text-Grey_Default '>
 					{noDataLabel}
 				</div>
 			</td>
@@ -188,6 +190,7 @@ const STable = ({
 			</tr>
 		));
 	};
+
 	const renderHeader = () =>
 		columns.map((column, colIdx) => (
 			<th
@@ -223,7 +226,7 @@ const STable = ({
 				</div>
 				{resizable && colIdx !== columns.length - 1 && (
 					<div
-						className='absolute right-0 top-1/2 z-50 h-16pxr w-4pxr -translate-y-1/2 cursor-col-resize border-l border-r border-Grey_Lighten-2'
+						className='absolute right-0 z-50 -translate-y-1/2 border-l border-r top-1/2 h-16pxr w-4pxr cursor-col-resize border-Grey_Lighten-2'
 						onMouseDown={(evt) => handleResize(colIdx, evt)}
 					/>
 				)}
@@ -254,8 +257,9 @@ const STable = ({
 			</div>
 			{pagination.lastPage > 0 && (
 				<Pagination
-					className='h-60pxr rounded-8pxr border border-t-0 border-Grey_Lighten-3 bg-Grey_Lighten-6'
+					className='border border-t-0 h-60pxr rounded-8pxr border-Grey_Lighten-3 bg-Grey_Lighten-6'
 					pagination={paginationValue}
+     perPageOpts={perPageOpts}
 					setPagination={(pageObj) =>
 						setPagination({ ...pagination, page: pageObj.page })
 					}

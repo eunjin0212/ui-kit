@@ -14,7 +14,7 @@ import SToggle from './components/SToggle';
 import SCaution from './components/SCaution';
 import SInput from './components/SInput';
 import STable, { type Column } from './components/STable';
-import { PaginationType } from './components/SPagination';
+import { type PaginationType } from './components/SPagination';
 
 const rows = Array.from({ length: 1000 }).map((_, idx) => ({
 	name: 'name',
@@ -32,9 +32,9 @@ function App() {
 	const [tabValue, setTabValue] = useState('tab1');
 	const [inputValue, setInputValue] = useState('');
 	const [pagination, setPagination] = useState<PaginationType>({
-		lastPage: 10,
+		lastPage: 1,
 		page: 1,
-		perPage: 100, // 데이터는 50개씩 자르겠다.
+		perPage: 50, // 데이터는 50개씩 자르겠다.
 	});
 
  const [paginationWithSingle, setPaginationWithSingle] = useState<PaginationType>({
@@ -164,7 +164,6 @@ function App() {
 								key={idx}
 								value={data.value}
 								label={data.label}
-								useInsideLabel={data.useInsideLabel}
 								labelClassName={data.labelClassName}
 								placeholder={data.placeholder}
 								onChange={(e) => handleInputChange(e, idx)}
@@ -180,7 +179,6 @@ function App() {
 						value={inputValue}
 						placeholder='키워드를 입력해주세요.'
 						onChange={(evt) => setInputValue(evt.target.value)}
-						useInsideLabel
 						label='useRealTimeRules'
 						useRealTimeRules
 						hint='최소 5글자 이상'
@@ -200,7 +198,6 @@ function App() {
 						value={inputValue}
 						placeholder='키워드를 입력해주세요.'
 						onChange={(evt) => setInputValue(evt.target.value)}
-						useInsideLabel
 						label='label'
 						hint='최소 5글자 이상'
 						rules={[
@@ -232,6 +229,7 @@ function App() {
 						className='h-400pxr'
 						pagination={pagination}
 						setPagination={setPagination}
+      perPageOpts={[20, 50, 100, 150]}
 					/>
 
 					<STable

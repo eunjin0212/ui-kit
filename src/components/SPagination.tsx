@@ -1,5 +1,6 @@
 import { Dispatch, type ReactNode, useMemo } from 'react';
 import Icon from './Icon';
+import SSelect from './SSelect';
 
 export interface PaginationType {
 	lastPage: number;
@@ -62,12 +63,13 @@ const SPagination = ({
 	},
 	className = '',
 	setPagination,
-	// perPageOpts = [20, 50, 100, 150],
+	perPageOpts = [],
 }: PaginationProps) => {
 	const pages = useMemo(() => {
-		const { lastPage, page, perPage } = pagination;
-		const startPage = Math.floor((page - 1) / perPage) * perPage + 1; // 현재 페이지 그룹의 시작 페이지
-		const endPage = Math.min(startPage + perPage - 1, lastPage); // 현재 페이지 그룹의 끝 페이지
+		const { lastPage, page } = {...pagination};
+  const paging = Math.min(pagination.perPage, 10)
+		const startPage = Math.floor((page - 1) / paging) * paging + 1; // 현재 페이지 그룹의 시작 페이지
+		const endPage = Math.min(startPage + paging - 1, lastPage); // 현재 페이지 그룹의 끝 페이지
 
 		// 페이지 번호 생성
 		return Array.from(
@@ -77,20 +79,21 @@ const SPagination = ({
 	}, [pagination]);
 
 	const handlePage = (type: 'next' | 'prev' | 'last' | 'first') => {
-		const { page, perPage, lastPage } = pagination;
+		const { page, lastPage } = pagination;
+  const paging = Math.min(pagination.perPage, 10)
 
 		let newPage = page;
 
 		switch (type) {
 			case 'next':
 				newPage = Math.min(
-					Math.floor((page - 1) / perPage) * perPage + perPage + 1,
+					Math.floor((page - 1) / paging) * paging + paging + 1,
 					lastPage
 				);
 				break;
 			case 'prev':
 				newPage = Math.max(
-					Math.floor((page - 1) / perPage) * perPage - perPage + 1,
+					Math.floor((page - 1) / paging) * paging - paging + 1,
 					1
 				);
 				break;
@@ -111,11 +114,17 @@ const SPagination = ({
 		setPagination({ ...pagination, page });
 	};
 
-	const iconClass = 'w-60pxr h-26pxr inline-flex items-center justify-center gap-x-8pxr';
+	const perPageOptions = useMemo(
+		() => perPageOpts.map((opt) => ({ label: `${opt}개씩 보기`, value: opt })),
+		[perPageOpts]
+	);
+
+	const iconClass =
+		'w-60pxr h-26pxr inline-flex items-center justify-center gap-x-8pxr';
 	return (
 		<div
 			className={[
-				's-pagination flex flex-nowrap items-center justify-center gap-x-8pxr text-Grey_Darken-2',
+				's-pagination relative flex flex-nowrap items-center justify-center gap-x-8pxr text-Grey_Darken-2',
 				className,
 			].join(' ')}
 		>
@@ -144,11 +153,11 @@ const SPagination = ({
 				))
 			) : (
 				<div className='flex items-center gap-x-8pxr'>
-					<span className='h-20pxr w-30pxr text-center leading-20pxr'>
+					<span className='text-center h-20pxr w-30pxr leading-20pxr'>
 						{pagination.page}
 					</span>
 					<span>/</span>
-					<span className='h-20pxr w-30pxr text-center leading-20pxr'>
+					<span className='text-center h-20pxr w-30pxr leading-20pxr'>
 						{pagination.lastPage}
 					</span>
 				</div>
@@ -165,6 +174,13 @@ const SPagination = ({
 					</>
 				)}
 			</div>
+			{perPageOpts.length ? (
+				<SSelect
+     className='absolute w-120pxr top-16pxr right-20pxr'
+					options={perPageOptions}
+					value={pagination.perPage}
+				/>
+			) : null}
 		</div>
 	);
 };
