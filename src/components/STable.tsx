@@ -136,7 +136,7 @@ const STable = ({
 	const renderLoading = () => (
 		<div className='absolute inset-0 z-50 flex items-center justify-center bg-white s-table__loading bg-opacity-40'>
 			<div
-				className='transition-all rounded-full loading aspect-square w-50pxr animate-spin bg-positive p-8pxr'
+				className='rounded-full transition-all loading aspect-square w-50pxr animate-spin bg-positive p-8pxr'
 				style={loadingStyle}
 			></div>
 		</div>
@@ -226,7 +226,7 @@ const STable = ({
 				</div>
 				{resizable && colIdx !== columns.length - 1 && (
 					<div
-						className='absolute right-0 z-50 -translate-y-1/2 border-l border-r top-1/2 h-16pxr w-4pxr cursor-col-resize border-Grey_Lighten-2'
+						className='absolute right-0 z-50 border-l border-r -translate-y-1/2 top-1/2 h-16pxr w-4pxr cursor-col-resize border-Grey_Lighten-2'
 						onMouseDown={(evt) => handleResize(colIdx, evt)}
 					/>
 				)}
