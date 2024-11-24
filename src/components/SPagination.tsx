@@ -181,7 +181,7 @@ const SPagination = ({
 					options={perPageOptions}
 					value={pagination.perPage}
      setValue={(val: Option) => {
-      setPagination({...pagination, perPage: +val.value})
+      if (typeof val !== 'string' && typeof val !== 'number') setPagination({...pagination, perPage: +val.value})
      }}
 				/>
 			) : null}
