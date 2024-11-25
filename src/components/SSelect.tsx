@@ -5,7 +5,7 @@ import { type Option } from './DropdownOptions';
 import { type Dispatch } from 'react';
 
 interface SelectProps {
- value: Option;
+ value: Option | string | number;
  options: Option[];
  disable?: boolean;
  label?: string;
@@ -45,6 +45,7 @@ const Select = ({
    label={label}
    handleClick={handleClick}
    options={options}
+   disable={disable}
   >
    {options.map((opt, idx) => (
     <DropdownItem

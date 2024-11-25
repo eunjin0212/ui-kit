@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, Dispatch } from 'react';
 import { Option } from '../components/DropdownOptions';
 
 export interface UseSelectProps {
-  value: Option;
+  value: Option | string | number;
   options: Option[];
   optionLabel: string;
   optionValue: string;

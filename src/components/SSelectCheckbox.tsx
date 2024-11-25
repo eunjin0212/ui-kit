@@ -5,7 +5,7 @@ import { Option } from './DropdownOptions';
 import { Dispatch } from 'react';
 
 export interface CheckboxSelectProps {
-  value: Option;
+  value: (Option | number | string) [];
   options: Option[];
   disable?: boolean;
   label?: string;
@@ -45,12 +45,15 @@ const SCheckboxSelect = ({
       label={label}
       handleClick={handleClick}
       options={options}
+      disable={disable}
     >
       {options.map((opt, idx) => (
         <SCheckbox
           key={idx}
           checked={String(opt[optionValue]) === String(value)}
           onChange={() => handleClick(opt)}
+          label={opt.label}
+          className='ml-0pxr'
         />
       ))}
     </BaseSelect>
