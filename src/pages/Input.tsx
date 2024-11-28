@@ -8,7 +8,6 @@ const Input = () => {
 	const [formData, setFormData] = useState<any[]>([
 		{
 			label: 'AAA',
-			useInsideLabel: true,
 			value: '',
 			rules: [
 				{ message: 'AAA is required.', validate: (value: string) => !!value },
@@ -20,7 +19,6 @@ const Input = () => {
 		},
 		{
 			label: 'BBB',
-			useInsideLabel: true,
 			value: '',
 			rules: [
 				{ message: 'BBB is required.', validate: (value: string) => !!value },
@@ -32,7 +30,6 @@ const Input = () => {
 		},
 		{
 			label: 'CCC',
-			useInsideLabel: true,
 			value: '',
 			rules: [
 				{ message: 'CCC is required.', validate: (value: string) => !!value },
@@ -80,7 +77,6 @@ const Input = () => {
 						key={idx}
 						value={data.value}
 						label={data.label}
-						useInsideLabel={data.useInsideLabel}
 						labelClassName={data.labelClassName}
 						placeholder={data.placeholder}
 						onChange={(e) => handleInputChange(e, idx)}
@@ -96,7 +92,7 @@ const Input = () => {
 				value={inputValue}
 				placeholder='키워드를 입력해주세요.'
 				onChange={(evt) => setInputValue(evt.target.value)}
-				useInsideLabel
+				
 				label='useRealTimeRules'
 				useRealTimeRules
 				hint='최소 5글자 이상'
@@ -116,7 +112,6 @@ const Input = () => {
 				value={inputValue}
 				placeholder='키워드를 입력해주세요.'
 				onChange={(evt) => setInputValue(evt.target.value)}
-				useInsideLabel
 				label='label'
 				hint='최소 5글자 이상'
 				rules={[
