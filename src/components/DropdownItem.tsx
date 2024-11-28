@@ -1,15 +1,22 @@
+import type { ReactNode } from 'react';
+
+export type Option = {
+ label: string;
+ value: string | number;
+ disable?: boolean;
+ display?: boolean;
+} & {
+ [key: string]: string | number | boolean | undefined; // Index signature
+};
+
 interface ItemProps {
- option: {
-  label: string;
-  value: string | number | boolean | undefined;
-  display?: string | number | boolean;
-  disable?: string | number | boolean;
- }
+ option: Option
  idx: number;
- handleClick: () => void
+ handleClick: () => void;
+ children?: ReactNode;
 }
 
-const DropdownItem = ({ option, idx, handleClick }: ItemProps) => {
+const DropdownItem = ({ option, idx, handleClick, children }: ItemProps) => {
  return (
   (option.display === undefined || option.display) && (
    <li
@@ -21,8 +28,8 @@ const DropdownItem = ({ option, idx, handleClick }: ItemProps) => {
     aria-disabled={option.disable as boolean}
     onClick={() => handleClick()}
    >
-    {typeof option === 'string' ? (
-     <div>{option}</div>
+    {children ? (
+     <div>{children}</div>
     ) : (
      <div dangerouslySetInnerHTML={{ __html: option.label }}></div>
     )}

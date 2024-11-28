@@ -1,12 +1,13 @@
 import {
-	ReactNode,
-	RefObject,
+ type Dispatch,
+	type ReactNode,
+	type RefObject,
 	useCallback,
 	useEffect,
 	useRef,
 	useState,
 } from 'react';
-import DropdownItem from './DropdownItem';
+import DropdownItem, { type Option } from './DropdownItem';
 
 const initParentDOMRect = {
 	height: 0,
@@ -18,18 +19,12 @@ const initParentDOMRect = {
 	top: 0,
 };
 
-export type Option = {
-	label: string;
-	value: string | number;
-	disable?: boolean;
-	display?: boolean;
-}
-
 interface DropdownProps {
 	options: Option[];
 	parentRef: RefObject<HTMLElement>;
-	onClick: (option?: Option) => void;
+	onClick: (arg?: Option) => void;
 	open: boolean;
+ setOpen: Dispatch<boolean>
 	children?: ReactNode;
 }
 
@@ -38,6 +33,7 @@ const DropdownOptions = ({
 	parentRef,
 	onClick,
 	open,
+ setOpen,
 	children,
 }: DropdownProps) => {
 	const [position, setPosition] = useState(initParentDOMRect);
@@ -57,10 +53,11 @@ const DropdownOptions = ({
 				dropdownRef.current &&
 				!dropdownRef.current.contains(e.target as Node)
 			) {
-				onClick();
+    console.log('handleClickOutside')
+				setOpen(false)
 			}
 		},
-		[onClick, parentRef]
+		[parentRef, setOpen]
 	);
 
 	useEffect(() => {
@@ -75,7 +72,6 @@ const DropdownOptions = ({
 	}, [open, handleClickOutside]);
 
 	return (
-		open && (
 			<ul
 				className='s-dropdown__options rounded-2pxr bg-white shadow-dropdownOptions'
 				ref={dropdownRef}
@@ -97,7 +93,6 @@ const DropdownOptions = ({
 							/>
 						))}
 			</ul>
-		)
 	);
 };
 

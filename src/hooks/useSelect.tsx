@@ -1,47 +1,50 @@
-import { useMemo, useRef, useState, Dispatch } from 'react';
-import { Option } from '../components/DropdownOptions';
+import {
+	useMemo,
+	useRef,
+	useState,
+	type Dispatch,
+	type SetStateAction,
+} from 'react';
+import { Option } from '../components/DropdownItem';
 
 export interface UseSelectProps {
-  value: Option | string | number;
-  options: Option[];
-  optionLabel: string;
-  optionValue: string;
-  placeholder: string;
-  setValue: Dispatch<Option>;
+	value: Option | Option[];
+	options: Option[];
+	placeholder?: string;
+	optionValue?: string;
+	optionLabel?: string;
+	setValue?: Dispatch<SetStateAction<Option>>;
 }
 
 export const useSelect = ({
-  value,
-  options,
-  optionLabel,
-  optionValue,
-  placeholder,
-  setValue,
+	value,
+	options,
+	optionLabel = 'label',
+	optionValue = 'value',
+	placeholder = '',
+	setValue,
 }: UseSelectProps) => {
-  const [isOpen, setOpen] = useState(false);
-  const selectRef = useRef<HTMLDivElement | null>(null);
+	const [open, setOpen] = useState(false);
+	const selectRef = useRef<HTMLDivElement | null>(null);
 
-  const displayLabel = useMemo(() => {
-    const foundOption = options.find((opt) => {
-      if (opt && typeof opt === 'object' && optionValue in opt) {
-        return String(opt[optionValue]) === String(value);
-      }
-      return opt === value;
-    });
-    if (
-      foundOption &&
-      typeof foundOption === 'object' &&
-      optionLabel in foundOption
-    ) {
-      return foundOption[optionLabel] as string;
-    }
-    return placeholder;
-  }, [optionLabel, optionValue, options, placeholder, value]);
+	const displayLabel = useMemo<string>(() => {
+		if (Array.isArray(value)) {
+			return value.length
+				? value.map((val) => val[optionLabel]).join(', ')
+				: placeholder;
+		}
 
-  const handleClick = (arg?: Option) => {
-    setOpen((prev) => !prev);
-    if (arg) setValue(arg);
-  };
+		const foundOption = options.find(
+			(opt) => String(value[optionValue]) === String(opt[optionValue])
+		);
 
-  return { isOpen, setOpen, selectRef, displayLabel, handleClick };
+		return foundOption ? (foundOption[optionLabel] as string) : placeholder;
+	}, [optionLabel, optionValue, options, placeholder, value]);
+
+	const handleClick = (arg?: Option) => {
+		setOpen((prev) => !prev);
+		if (arg && setValue) setValue(arg);
+	};
+
+	return { open, setOpen, selectRef, displayLabel, handleClick };
 };

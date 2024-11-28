@@ -1,19 +1,18 @@
+import type { Dispatch, SetStateAction } from 'react';
+import type { Option } from './DropdownItem';
 import { useSelect } from '../hooks/useSelect';
 import { BaseSelect } from './BaseSelect';
-import DropdownItem from './DropdownItem';
-import { type Option } from './DropdownOptions';
-import { type Dispatch } from 'react';
 
 interface SelectProps {
- value: Option | string | number;
+ value: Option;
  options: Option[];
+ setValue: Dispatch<SetStateAction<Option>>;
  disable?: boolean;
  label?: string;
  optionLabel?: string;
  optionValue?: string;
  placeholder?: string;
  className?: string;
- setValue: Dispatch<Option>;
 }
 
 const Select = ({
@@ -27,7 +26,7 @@ const Select = ({
  className = '',
  setValue,
 }: SelectProps) => {
- const { isOpen, selectRef, displayLabel, handleClick } = useSelect({
+ const { open, setOpen, selectRef, displayLabel, handleClick } = useSelect({
   value,
   options,
   optionLabel,
@@ -38,24 +37,16 @@ const Select = ({
 
  return (
   <BaseSelect
-   isOpen={isOpen}
+   open={open}
    selectRef={selectRef}
    displayLabel={displayLabel}
    className={className}
    label={label}
+   setOpen={setOpen}
    handleClick={handleClick}
    options={options}
    disable={disable}
-  >
-   {options.map((opt, idx) => (
-    <DropdownItem
-     key={idx}
-     option={opt}
-     idx={idx}
-     handleClick={() => handleClick(opt)}
-    />
-   ))}
-  </BaseSelect>
+  />
  );
 };
 

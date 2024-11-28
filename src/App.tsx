@@ -15,6 +15,8 @@ import SCaution from './components/SCaution';
 import SInput from './components/SInput';
 import STable, { type Column } from './components/STable';
 import { type PaginationType } from './components/SPagination';
+import SCheckboxSelect from './components/SSelectCheckbox';
+import { Option } from './components/DropdownItem';
 
 const rows = Array.from({ length: 1000 }).map((_, idx) => ({
 	name: 'name',
@@ -31,20 +33,29 @@ function App() {
 	const [selectedValue, setSelectedValue] = useState<string | number>('item3');
 	const [tabValue, setTabValue] = useState('tab1');
 	const [inputValue, setInputValue] = useState('');
+	const [selectCheckbox, setSelectCheckbox] = useState<Option[]>([]);
 	const [pagination, setPagination] = useState<PaginationType>({
 		lastPage: 1,
 		page: 1,
 		perPage: 50, // 데이터는 50개씩 자르겠다.
 	});
 
- const [paginationWithSingle, setPaginationWithSingle] = useState<PaginationType>({
-		lastPage: 2,
-		page: 1,
-		perPage: 1, // 데이터는 50개씩 자르겠다.
-	});
+	const [paginationWithSingle, setPaginationWithSingle] =
+		useState<PaginationType>({
+			lastPage: 2,
+			page: 1,
+			perPage: 1, // 데이터는 50개씩 자르겠다.
+		});
 	const handleClick = () => {
 		setChecked(!checked);
 	};
+
+	const checkboxSelectItems = [
+		{ label: 'item1', value: 1 },
+		{ label: 'item2', value: 2 },
+		{ label: 'item3', value: 3 },
+		{ label: 'item4', value: 4 },
+	];
 
 	const items = [
 		{ label: 'item1', value: 'item1', disabled: false },
@@ -229,7 +240,7 @@ function App() {
 						className='h-400pxr'
 						pagination={pagination}
 						setPagination={setPagination}
-      perPageOpts={[20, 50, 100, 150]}
+						perPageOpts={[20, 50, 100, 150]}
 					/>
 
 					<STable
@@ -238,6 +249,18 @@ function App() {
 						className='h-400pxr'
 						pagination={paginationWithSingle}
 						setPagination={setPaginationWithSingle}
+					/>
+				</div>
+
+				<div className='flex flex-col gap-12pxr p-16pxr'>
+					<div>
+						<b>SSelectCheckbox</b>
+					</div>
+					<SCheckboxSelect
+						value={selectCheckbox}
+						setValue={setSelectCheckbox}
+						options={checkboxSelectItems}
+      className='min-w-150pxr w-150pxr'
 					/>
 				</div>
 
