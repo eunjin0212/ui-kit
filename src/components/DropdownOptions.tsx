@@ -53,7 +53,6 @@ const DropdownOptions = ({
 				dropdownRef.current &&
 				!dropdownRef.current.contains(e.target as Node)
 			) {
-    console.log('handleClickOutside')
 				setOpen(false)
 			}
 		},

@@ -1,4 +1,4 @@
-import type { Dispatch, SetStateAction } from 'react';
+import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import type { Option } from './DropdownItem';
 import { useSelect } from '../hooks/useSelect';
 import { BaseSelect } from './BaseSelect';
@@ -50,6 +50,10 @@ const SCheckboxSelect = ({
 		});
 	};
 
+ const checked = useCallback((opt: Option) => {
+  return value.some(val => String(val[optionValue]) === String(opt[optionValue]))
+ }, [optionValue, value])
+
 	return (
 		<BaseSelect
 			open={open}
@@ -70,7 +74,7 @@ const SCheckboxSelect = ({
 					handleClick={handleClick}
 				>
 					<SCheckbox
-						checked={String(opt[optionValue]) === String(value)}
+						checked={checked(opt)}
 						onChange={() => handleClick(opt)}
 						label={opt.label}
 						className='ml-0pxr w-full'
