@@ -2,9 +2,8 @@ import { createPortal } from 'react-dom';
 import { useState, useRef } from 'react';
 import colors from '../css/colors.ts';
 import { Dropdown12 } from '../assets/DropdownIcon.tsx';
-import DropdownOptions, {
-	type DropdownOptionProps,
-} from './DropdownOptions.tsx';
+import DropdownOptions from './DropdownOptions.tsx';
+import { Option } from './DropdownItem.tsx';
 
 export interface SDropdownProps {
 	/**
@@ -23,13 +22,13 @@ export interface SDropdownProps {
 	/**
 	 * Click handler
 	 */
-	onClick: (arg: DropdownOptionProps) => void;
+	onClick: (arg: Option) => void;
 	/**
 	 * Dropdown options
 	 * @description Options can using HTML code
 	 * @example [{ label: '<span style="color: red">label</span>', value: 'label' }]
 	 */
-	options: DropdownOptionProps[];
+	options: Option[];
 	/**
 	 * Dropdown outline
 	 * @description Outline 'true' means changing the color of the text to the color you specified.
@@ -84,7 +83,7 @@ const SDropdown = ({
 	const [isOpen, setIsOpen] = useState(false);
 	const dropdownRef = useRef<HTMLButtonElement>(null);
 
-	const handleClick = (arg?: DropdownOptionProps) => {
+	const handleClick = (arg?: Option) => {
 		setIsOpen((prev) => !prev);
 		if (arg) onClick(arg);
 	};
@@ -133,6 +132,7 @@ const SDropdown = ({
 						options={options}
       parentRef={dropdownRef}
       open={isOpen}
+      setOpen={setIsOpen}
 					/>,
 					document.body
 				)}

@@ -77,6 +77,7 @@ const SCheckboxSelect = ({
 						checked={checked(opt)}
 						onChange={() => handleClick(opt)}
 						label={opt.label}
+      disabled={opt?.disable}
 						className='ml-0pxr w-full'
 					/>
 				</DropdownItem>
