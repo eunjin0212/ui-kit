@@ -45,8 +45,8 @@ const config: Config = {
 				dropdownInner: 'color-mix(in srgb, white 30%, transparent)',
 			},
 			boxShadow: {
-				dropdownOptions: '2px 2px 12px 2px #0000001A;',
-				tooltip: '2px 2px 8px 2px #00000033;',
+				dropdownOptions: '2px 2px 12px 2px #0000001A',
+				tooltip: '2px 2px 8px 2px #00000033',
 				input: '0 0 4px #0075ff',
 			},
 			colors: colors,

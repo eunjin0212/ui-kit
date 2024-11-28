@@ -126,7 +126,7 @@ export const ClickPopover: Story = {
 				이것은 아래쪽 툴팁입니다. 이것은 아래쪽 툴팁입니다. 이것은 아래쪽
 				툴팁입니다.이것은 아래쪽 툴팁입니다.
 			</STooltip.Body>
-			<STooltip.Footer className='inline-flex w-full items-center justify-between'>
+			<STooltip.Footer className='inline-flex items-center justify-between w-full'>
 				<SButton label='button' /> <SButton label='button' />
 			</STooltip.Footer>
 		</STooltip>
@@ -166,7 +166,7 @@ export const ValueTooltip: Story = {
 						이것은 아래쪽 툴팁입니다. 이것은 아래쪽 툴팁입니다. 이것은 아래쪽
 						툴팁입니다.이것은 아래쪽 툴팁입니다.
 					</STooltip.Body>
-					<STooltip.Footer className='inline-flex w-full items-center justify-between'>
+					<STooltip.Footer className='inline-flex items-center justify-between w-full'>
 						<SButton label='button' /> <SButton label='button' />
 					</STooltip.Footer>
 				</STooltip>

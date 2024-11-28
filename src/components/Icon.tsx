@@ -19,7 +19,8 @@ const Icon = ({ name, color, className, onClick }: IconProps) => {
 
 	return (
 		<IconComponent
-			className={[`text-${color}`, className].join(' ')}
+			color={color}
+			className={className}
 			onClick={() => onClick?.()}
 		/>
 	);

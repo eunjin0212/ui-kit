@@ -1,4 +1,13 @@
-import { useEffect, useState } from 'react';
+import {
+ type Dispatch,
+	type ReactNode,
+	type RefObject,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
+import DropdownItem, { type Option } from './DropdownItem';
 
 const initParentDOMRect = {
 	height: 0,
@@ -10,67 +19,79 @@ const initParentDOMRect = {
 	top: 0,
 };
 
-export interface DropdownOptionProps {
-	label: string;
-	value: string | number;
-	disable?: boolean;
-	display?: boolean;
-}
-
-interface DropdownOptionsProps {
-	parentId: string;
-	options: DropdownOptionProps[];
-	onClick: (arg: DropdownOptionProps) => void;
+interface DropdownProps {
+	options: Option[];
+	parentRef: RefObject<HTMLElement>;
+	onClick: (arg?: Option) => void;
+	open: boolean;
+ setOpen: Dispatch<boolean>
+	children?: ReactNode;
 }
 
 const DropdownOptions = ({
-	parentId = '',
-	options = [],
+	options,
+	parentRef,
 	onClick,
-}: DropdownOptionsProps) => {
-	const [position, setPosition] =
-		useState<Omit<DOMRect, 'toJSON' | 'right'>>(initParentDOMRect);
+	open,
+ setOpen,
+	children,
+}: DropdownProps) => {
+	const [position, setPosition] = useState(initParentDOMRect);
+	const dropdownRef = useRef<HTMLUListElement>(null);
 
 	useEffect(() => {
-		const parent = document.getElementById(`s-dropdown--${parentId}`) || null;
-
-		if (parent) {
-			setPosition(parent.getBoundingClientRect());
+		if (parentRef.current) {
+			setPosition(parentRef.current.getBoundingClientRect());
 		}
-	}, [parentId]);
+	}, [parentRef]);
+
+	const handleClickOutside = useCallback(
+		(e: MouseEvent) => {
+			if (
+				parentRef.current &&
+				!parentRef.current.contains(e.target as Node) &&
+				dropdownRef.current &&
+				!dropdownRef.current.contains(e.target as Node)
+			) {
+				setOpen(false)
+			}
+		},
+		[parentRef, setOpen]
+	);
+
+	useEffect(() => {
+		if (open) {
+			document.addEventListener('mousedown', handleClickOutside);
+		} else {
+			document.removeEventListener('mousedown', handleClickOutside);
+		}
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [open, handleClickOutside]);
 
 	return (
-		<ul
-			id={`s-dropdown__options--${parentId}`}
-			className='bg-white s-dropdown__options rounded-2pxr shadow-dropdownOptions'
-			style={{
-				position: 'absolute',
-				top: position.top + position.height + 4 + window.scrollY,
-				left: position.left + window.scrollX,
-				width: position.width,
-			}}
-		>
-			{options.map(
-				(opt, idx) =>
-					(opt.display === undefined || opt.display) && (
-						<li
-							key={`s-dropdown__option--${idx}`}
-							className={[
-								'px-12pxr py-4pxr text-Grey_Darken-4 hover:bg-Blue_C_Default hover:text-white aria-disabled:bg-white aria-disabled:text-Grey_Lighten-1',
-								opt?.disable ? 'cursor-not-allowed' : 'cursor-pointer',
-							].join(' ')}
-							aria-disabled={opt.disable}
-							onClick={() => onClick(opt)}
-						>
-							{typeof opt === 'string' ? (
-								<div>{opt}</div>
-							) : (
-								<div dangerouslySetInnerHTML={{ __html: opt.label }}></div>
-							)}
-						</li>
-					)
-			)}
-		</ul>
+			<ul
+				className='s-dropdown__options rounded-2pxr bg-white shadow-dropdownOptions'
+				ref={dropdownRef}
+				style={{
+					position: 'absolute',
+					top: position.top + position.height + 4 + window.scrollY,
+					left: position.left + window.scrollX,
+					width: position.width,
+				}}
+			>
+				{children
+					? children
+					: options.map((opt, idx) => (
+							<DropdownItem
+								option={opt}
+								idx={idx}
+								key={idx}
+								handleClick={() => onClick(opt)}
+							/>
+						))}
+			</ul>
 	);
 };
 

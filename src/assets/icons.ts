@@ -1,5 +1,5 @@
 import { SVGProps } from 'react';
-import { ArrowDown24 } from './ArrowDownIcon';
+import { ArrowDown12, ArrowDown24 } from './ArrowDownIcon';
 import { ArrowLeftEnd12 } from './ArrowLeftEndIcon';
 import { ArrowLeft12 } from './ArrowLeftIcon';
 import { ArrowRightEnd12 } from './ArrowRightEndIcon';
@@ -20,6 +20,7 @@ export const icons: Record<
 	Record<number, React.ComponentType<SVGProps<SVGSVGElement>>>
 > = {
 	ArrowDown: {
+  12: ArrowDown12,
 		24: ArrowDown24,
 	},
 	ArrowLeftEnd: {

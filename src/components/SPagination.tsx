@@ -1,174 +1,203 @@
-import { useState, useMemo, useEffect } from 'react';
+import {
+	type Dispatch,
+	type ReactNode,
+	type SetStateAction,
+	useMemo,
+	useState,
+} from 'react';
+import type { Option } from './DropdownItem';
 import Icon from './Icon';
+import SSelect from './SSelect';
 
-export interface SPaginationProps {
-	currentPage: number;
+export interface PaginationType {
 	lastPage: number;
-	perPage?: 1 | 10;
-	className?: string;
-	onChange?: (page: number) => void;
+	page: number;
+	perPage: number;
 }
 
-const BUTTON_WIDTH: Record<number, number> = {
-	1: 26,
-	2: 36,
-	3: 42,
-	4: 50,
-	5: 58,
-};
+export interface PaginationProps {
+	pagination: PaginationType;
+	perPageOpts?: number[];
+	className?: string;
+	setPagination: Dispatch<PaginationType>;
+}
 
-const SPagination = ({
-	currentPage = 1,
-	lastPage = 1,
-	perPage = 10,
+const PaginationButton = ({
+	children,
+	pageDigits = 1,
 	className = '',
-	onChange,
-}: SPaginationProps) => {
-	const [paginationInfo, setPaginationInfo] = useState<Record<string, number>>({
-		lastPage: lastPage,
-		currentPage: currentPage,
-	});
-
-	const [buttonWidth, setButtonWidth] = useState<number>(BUTTON_WIDTH[1]);
-
-	useEffect(() => {
-		setPaginationInfo({
-			lastPage: lastPage,
-			currentPage: currentPage,
-		});
-	}, [currentPage, lastPage, perPage]);
-
-	const displayedPageNumber = useMemo(() => {
-		const pages = [];
-		const { lastPage, currentPage } = paginationInfo;
-		const startPage = Math.floor((currentPage - 1) / perPage) * perPage + 1; // 현재 페이지 그룹의 시작 페이지
-		const endPage = Math.min(startPage + perPage - 1, lastPage); // 현재 페이지 그룹의 끝 페이지
-
-		// 페이지 번호 생성
-		for (let i = startPage; i <= endPage; i++) {
-			pages.push(i);
-		}
-
-		return pages;
-	}, [paginationInfo, perPage]);
-
-	const arrowButtonClass: string = [
-		'flex h-26pxr w-26pxr items-center justify-center rounded-14pxr text-Grey_Darken-5 hover:border hover:border-Blue_B_Lighten-1',
-	].join(' ');
-
-	useEffect(() => {
-		const maxPageLength: number =
-			displayedPageNumber[displayedPageNumber.length - 1].toString().length;
-
-		setButtonWidth(BUTTON_WIDTH[maxPageLength]);
-	}, [displayedPageNumber]);
-
-	const handlePageChange = (newPage: number) => {
-		if (newPage < 1 || newPage > lastPage) return; // 유효한 페이지 범위 확인
-		setPaginationInfo((prev) => ({ ...prev, currentPage: newPage }));
-		onChange?.(newPage);
-	};
-
-	const handleGroupChange = (direction: 'forward' | 'backward') => {
-		const { currentPage } = paginationInfo;
-
-		const newPage =
-			direction === 'forward'
-				? Math.min(currentPage + perPage, lastPage)
-				: Math.max(currentPage - perPage, 1);
-
-		handlePageChange(newPage);
-	};
-
-	const isFirstGroup = () => {
-		const { currentPage } = paginationInfo;
-		return currentPage <= 10; // 첫 번째 그룹 확인
-	};
-
-	const isLastGroup = () => {
-		const { lastPage, currentPage } = paginationInfo;
-		const startPageGroup = Math.floor((currentPage - 1) / perPage) * perPage + 1;
-		return startPageGroup + perPage - 1 >= lastPage; // 마지막 그룹 확인
-	};
+	onClick,
+	active = false,
+}: {
+	children: ReactNode | number;
+	pageDigits?: number;
+	className?: string;
+	active?: boolean;
+	onClick?: () => void;
+}) => {
+	const checkTotalPageDigits = () => Math.abs(pageDigits).toString().length;
+	const buttonSize = {
+		1: 'w-26pxr',
+		2: 'w-36pxr',
+		3: 'w-42pxr',
+		4: 'w-50pxr',
+		5: 'w-58pxr',
+	} as Record<number, string>;
 
 	return (
-		<div
+		<button
+			onClick={onClick}
 			className={[
-				's-pagination flex flex-nowrap items-center gap-x-8pxr text-Grey_Darken-2',
+				'relative inline-flex h-26pxr items-center justify-center rounded-14pxr',
+				'before:hover:absolute before:hover:h-full before:hover:w-full before:hover:rounded-14pxr before:hover:border before:hover:border-Blue_B_Lighten-1',
+				active
+					? 'bg-Blue_B_Lighten-1 text-white hover:!text-white'
+					: `text-Grey_Darken-2 ${typeof children === 'number' && 'hover:text-Blue_B_Lighten-1'}`,
 				className,
+				buttonSize[checkTotalPageDigits()],
 			].join(' ')}
 		>
-			<div className='prepend-btns flex w-60pxr flex-nowrap items-center gap-x-8pxr'>
-				{!isFirstGroup() && (
-					<>
-						<button
-							className={arrowButtonClass}
-							onClick={() => handlePageChange(1)}
-						>
-							<Icon name='ArrowLeftEnd_12' />
-						</button>
-						<button
-							className={arrowButtonClass}
-							onClick={() => handleGroupChange('backward')}
-						>
-							<Icon name='ArrowLeft_12' />
-						</button>
-					</>
-				)}
-			</div>
-
-			{displayedPageNumber.map((pageNumber: number) => (
-				<button
-					key={pageNumber}
-					type='button'
-					className={[
-						'pagination-btn flex h-26pxr items-center justify-center rounded-14pxr',
-						perPage !== 1 && paginationInfo.currentPage === pageNumber
-							? 'bg-Blue_B_Lighten-1 text-white'
-							: perPage !== 1
-								? 'hover:border hover:border-Blue_B_Lighten-1 hover:text-Blue_B_Lighten-1'
-								: '!cursor-text',
-					].join(' ')}
-					disabled={paginationInfo.currentPage === pageNumber}
-					style={{ width: `${buttonWidth / 12}rem` }}
-					onClick={() => handlePageChange(pageNumber)}
-				>
-					{pageNumber}
-				</button>
-			))}
-
-			{perPage === 1 && (
-				<>
-					<div>/</div>
-					<div
-						className='text-center'
-						style={{ width: `${buttonWidth / 12}rem` }}
-					>
-						{paginationInfo.lastPage}
-					</div>
-				</>
-			)}
-
-			<div className='append-btns flex w-60pxr flex-nowrap items-center gap-x-8pxr'>
-				{!isLastGroup() && (
-					<>
-						<button
-							className={arrowButtonClass}
-							onClick={() => handleGroupChange('forward')}
-						>
-							<Icon name='ArrowRight_12' />
-						</button>
-						<button
-							className={arrowButtonClass}
-							onClick={() => handlePageChange(lastPage)}
-						>
-							<Icon name='ArrowRightEnd_12' />
-						</button>
-					</>
-				)}
-			</div>
-		</div>
+			{children}
+		</button>
 	);
 };
 
+const SPagination = ({
+	pagination = {
+		page: 1,
+		perPage: 50,
+		lastPage: 1,
+	},
+	className = '',
+	setPagination,
+	perPageOpts = [],
+}: PaginationProps) => {
+	const perPageOptions = useMemo(
+		() => perPageOpts.map((opt) => ({ label: `${opt}개씩 보기`, value: opt })),
+		[perPageOpts]
+	);
+
+	const initSelectValue = { label: '50개씩 보기', value: 50 };
+	const [selectValue, setSelectValue] = useState<Option>(
+		perPageOptions.find((opt) => opt.value === pagination.perPage) ||
+			initSelectValue
+	);
+
+	const pages = useMemo(() => {
+		const { lastPage, page } = { ...pagination };
+		const paging = Math.min(pagination.perPage, 10);
+		const startPage = Math.floor((page - 1) / paging) * paging + 1; // 현재 페이지 그룹의 시작 페이지
+		const endPage = Math.min(startPage + paging - 1, lastPage); // 현재 페이지 그룹의 끝 페이지
+
+		// 페이지 번호 생성
+		return Array.from(
+			{ length: endPage - startPage + 1 },
+			(_, index) => startPage + index
+		);
+	}, [pagination]);
+
+	const handlePage = (type: 'next' | 'prev' | 'last' | 'first') => {
+		const { page, lastPage } = pagination;
+		const paging = Math.min(pagination.perPage, 10);
+
+		let newPage = page;
+		const pageUnit = Math.floor((page - 1) / paging) * paging;
+
+		switch (type) {
+			case 'next':
+				newPage = Math.min(pageUnit + paging + 1, lastPage);
+				break;
+			case 'prev':
+				newPage = Math.max(pageUnit - paging + 1, 1);
+				break;
+			case 'last':
+				newPage = lastPage;
+				break;
+			case 'first':
+				newPage = 1;
+				break;
+			default:
+				break;
+		}
+
+		setPagination({ ...pagination, page: newPage });
+	};
+
+	const handleCurrentPage = (page: number) => {
+		setPagination({ ...pagination, page });
+	};
+
+	const handlePerPage = (val: SetStateAction<Option>) => {
+		const updatedValue = typeof val === 'function' ? val(selectValue) : val;
+
+		setPagination({ ...pagination, page: 1, perPage: +updatedValue.value });
+		setSelectValue({ ...updatedValue });
+	};
+
+	const iconClass =
+		'w-60pxr h-26pxr inline-flex items-center justify-center gap-x-8pxr';
+	return (
+		<div
+			className={[
+				's-pagination relative flex flex-nowrap items-center justify-center gap-x-8pxr text-Grey_Darken-2',
+				className,
+			].join(' ')}
+		>
+			<div className={iconClass}>
+				{pagination.page !== 1 && (
+					<>
+						<PaginationButton onClick={() => handlePage('first')}>
+							<Icon name='ArrowLeftEnd_12' />
+						</PaginationButton>
+						<PaginationButton onClick={() => handlePage('prev')}>
+							<Icon name='ArrowLeft_12' />
+						</PaginationButton>
+					</>
+				)}
+			</div>
+			{pagination.perPage !== 1 ? (
+				pages.map((page) => (
+					<PaginationButton
+						key={page}
+						pageDigits={pages[pages.length - 1]}
+						active={pagination.page === page}
+						onClick={() => handleCurrentPage(page)}
+					>
+						{page}
+					</PaginationButton>
+				))
+			) : (
+				<div className='flex items-center gap-x-8pxr'>
+					<span className='h-20pxr w-30pxr text-center leading-20pxr'>
+						{pagination.page}
+					</span>
+					<span>/</span>
+					<span className='h-20pxr w-30pxr text-center leading-20pxr'>
+						{pagination.lastPage}
+					</span>
+				</div>
+			)}
+			<div className={iconClass}>
+				{pagination.page !== pagination.lastPage && (
+					<>
+						<PaginationButton onClick={() => handlePage('next')}>
+							<Icon name='ArrowRight_12' />
+						</PaginationButton>
+						<PaginationButton onClick={() => handlePage('last')}>
+							<Icon name='ArrowRightEnd_12' />
+						</PaginationButton>
+					</>
+				)}
+			</div>
+			{perPageOpts.length ? (
+				<SSelect
+					className='absolute right-20pxr top-16pxr w-120pxr'
+					options={perPageOptions}
+					value={selectValue}
+					setValue={handlePerPage}
+				/>
+			) : null}
+		</div>
+	);
+};
 export default SPagination;

@@ -31,7 +31,6 @@ export const InsideLabelInput: Story = {
 	args: {
 		placeholder: '키워드를 입려해주세요.',
 		label: 'inside label',
-		useInsideLabel: true,
 	},
 };
 
@@ -39,7 +38,6 @@ export const DisableInput: Story = {
 	args: {
 		placeholder: '키워드를 입려해주세요.',
 		label: 'disable',
-		useInsideLabel: true,
 		disable: true,
 	},
 };
@@ -48,7 +46,6 @@ export const ReadonlyInput: Story = {
 	args: {
 		placeholder: '키워드를 입려해주세요.',
 		label: 'label',
-		useInsideLabel: true,
 		readonly: true,
 	},
 };

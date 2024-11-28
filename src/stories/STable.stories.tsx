@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import STable, { type STableProps, TableColumn } from '../components/STable';
+import STable, { type TableProps, Column } from '../components/STable';
 
 const meta = {
 	title: 'STable',
@@ -14,9 +14,9 @@ const meta = {
 
 export default meta;
 
-type Story = StoryObj<STableProps>;
+type Story = StoryObj<TableProps>;
 
-const TABLE_COLUMNS: TableColumn[] = [
+const TABLE_COLUMNS: Column[] = [
 	{
 		name: 'product_code',
 		label: '상품코드',
@@ -105,7 +105,6 @@ export const StickyHeader: Story = {
 	args: {
 		columns: TABLE_COLUMNS,
 		rows: tableRows,
-		useStickyHeader: true,
-		className: 'h-100pxr',
+		stickyHeader: true,
 	},
 };
