@@ -1,30 +1,38 @@
 import { useState } from 'react';
 import DateInput from './DateInput';
+import SingleDate from './SingleDate';
 
 interface SDatePickerProps {
- onChange: (date: Date) => void;
+	onChange: (date: string) => void;
 }
 
 const SDatePicker = ({ onChange }: SDatePickerProps) => {
- const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+	const [selectedDate, setSelectedDate] = useState<string>('');
+	const [open, setOpen] = useState<boolean>(false);
 
- const handleDateChange = (value: string) => {
-  const date = new Date(value);
-  setSelectedDate(date);
-  onChange(date);
- };
+	const handleDateChange = (value: string) => {
+		setSelectedDate(value);
+		onChange(value);
+	};
 
- return (
-  <div>
-   <DateInput  
-    value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''} 
-    onChange={handleDateChange} 
-   />
-   <input 
-    type="date" 
-   />
-  </div>
- );
+	const handleClick = () => {
+		setOpen(!open);
+	};
+
+	return (
+		<div>
+			<DateInput
+				value={selectedDate}
+				onChange={handleDateChange}
+				onClick={handleClick}
+			/>
+			<SingleDate
+				open={open}
+				date={selectedDate}
+    setDate={setSelectedDate}
+			/>
+		</div>
+	);
 };
 
 export default SDatePicker;

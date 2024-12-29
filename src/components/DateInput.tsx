@@ -1,49 +1,72 @@
-import { useState } from 'react';
-import { CalendarIcon12 } from '../assets/CalenderIcon';
+import { useMemo } from 'react';
+import { CalendarIcon16 } from '../assets/CalenderIcon';
 import { Close12 } from '../assets/CloseIcon';
 
 interface DateInputProps {
- value: string;
- onChange: (date: string) => void;
+	value: string;
+	label?: string;
+	placeholder?: string;
+	disable?: boolean;
+	onClick: () => void;
+	onChange: (date: string) => void;
 }
 
-const DateInput = ({ value, onChange }: DateInputProps) => {
- const [isFocused, setIsFocused] = useState(false);
+const DateInput = ({
+	value,
+	onChange,
+	label,
+	disable = false,
+	placeholder = '',
+	onClick,
+}: DateInputProps) => {
+	const handleClear = () => {
+		onChange('');
+	};
 
- const handleClear = () => {
-  onChange('');
- };
+	const labelClass = useMemo(
+		() =>
+			[
+				label
+					? 'before:rounded-l-2pxr before:absolute before:w-full before:h-full before:top-0 before:left-0 before:contents-[""] before:border before:border-r-0 px-12pxr py-4pxr bg-Grey_Lighten-5'
+					: 'mr-12pxr',
+				disable
+					? 'before:border-Grey_Lighten-2 cursor-not-allowed'
+					: 'before:border-Grey_Lighten-1',
+			].join(' '),
+		[disable, label]
+	);
 
- const handleFocus = () => {
-  setIsFocused(true);
- };
-
- const handleBlur = () => {
-  setIsFocused(false);
- };
-
- const formatDate = (date: string | null) => {
-  if (!date) return '';
-  const d = new Date(date)
-  const day = d.getDate().toString().padStart(2, '0');
-  const month = (d.getMonth() + 1).toString().padStart(2, '0');
-  const year = d.getFullYear();
-  return `${year}-${month}-${day}`;
- };
-
- return (
-  <div className={`date-input ${isFocused ? 'focused' : ''}`}>
-   <CalendarIcon12 />
-   <input
-    type="text"
-    value={formatDate(value)}
-    onFocus={handleFocus}
-    onBlur={handleBlur}
-    readOnly
-   />
-   {value && <Close12 className="clear-icon" onClick={handleClear} />}
-  </div>
- );
+	return (
+		<div
+			className={[
+				'inline-flex max-h-28pxr min-w-134pxr items-center rounded-2pxr border border-Grey_Lighten-1 px-7pxr py-5pxr',
+			].join(' ')}
+		>
+			{label && (
+				<label
+					htmlFor={label}
+					className={['relative text-center leading-20pxr', labelClass].join(' ')}
+				>
+					{label}
+				</label>
+			)}
+			<div className='inline-flex h-full w-full cursor-pointer items-center justify-between'>
+				<CalendarIcon16 onClick={onClick} />
+				<span
+					className={[!value && 'flex flex-1 h-16pxr'].join(' ')}
+					onClick={onClick}
+				>
+					{value || placeholder}
+				</span>
+				{value && (
+					<Close12
+						className='cursor-pointer text-Grey_Default'
+						onClick={handleClear}
+					/>
+				)}
+			</div>
+		</div>
+	);
 };
 
 export default DateInput;

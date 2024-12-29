@@ -14,6 +14,7 @@ import { NotificationOutline24 } from './NotificationOulineIcon';
 import { Setting24 } from './SettingIcon';
 import { VisibilityOff16 } from './VisibilityOffIcon';
 import { VisibilityOn16 } from './VisibilityOnIcon';
+import { CalendarIcon16 } from './CalenderIcon';
 
 export const icons: Record<
 	string,
@@ -66,4 +67,7 @@ export const icons: Record<
 	VisibilityOn: {
 		16: VisibilityOn16,
 	},
+ CalendarIcon: {
+  16: CalendarIcon16,
+ }
 };
