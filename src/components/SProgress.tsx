@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import InnerCircle, { type InnerCircleProps } from './InnerCircle';
 
 const statusColor = {
- standby: '#AAAAAA',
+	standby: '#AAAAAA',
 	progress: '#0075FF',
 	error: '#FB4444',
 	success: '#01BB4B',
@@ -30,12 +30,12 @@ const SProgress = ({
 	percentageClass = '',
 	usePercentage = true,
 }: ProgressProps) => {
- const progressStatus = useMemo(() => {
-  if (status === 'error') return status
-  if (percentage === 0) return 'standby'
-  if (percentage === 100) return 'success'
-  return 'progress'
- }, [percentage, status])
+	const progressStatus = useMemo(() => {
+		if (status === 'error') return status;
+		if (percentage === 0) return 'standby';
+		if (percentage === 100) return 'success';
+		return 'progress';
+	}, [percentage, status]);
 	return (
 		<div
 			className={[
@@ -55,16 +55,26 @@ const SProgress = ({
 							backgroundColor: statusColor[progressStatus],
 						}}
 					></div>
-					<strong
-						className='absolute top-0 left-1/2 -ml-17pxr h-20pxr leading-21pxr'
+					<div
+						className='absolute left-0 top-0 h-20pxr w-full bg-gray-200 leading-21pxr'
 						style={{
-							color: percentage < 50
-										? statusColor[progressStatus]
-										: 'white',
+							color: statusColor[progressStatus],
+							zIndex: 1,
+							clipPath: `inset(0 0 0 ${percentage}%)`,
 						}}
 					>
-						{percentage} %
-					</strong>
+						{percentage}%
+					</div>
+					<div
+						className='absolute left-0 top-0 h-20pxr w-full leading-21pxr text-white'
+						style={{
+							backgroundColor: statusColor[progressStatus],
+							zIndex: 1,
+							clipPath: `inset(0 ${100 - percentage}% 0 0)`,
+						}}
+					>
+						{percentage}%
+					</div>
 				</div>
 			) : (
 				<InnerCircle
