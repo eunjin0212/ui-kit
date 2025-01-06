@@ -4,18 +4,24 @@ import SDatePicker from '../components/SDatePicker';
 const DatePicker = () => {
 	const [date, setDate] = useState<string>('');
 	return (
-		<>
-			<SDatePicker value={date} />
+		<div className='flex flex-col gap-y-12pxr'>
+			{date}
 			<SDatePicker
+				date={date}
+				onChange={(newDate) => setDate(newDate)}
+			/>
+			{/* <SDatePicker
 				label='label'
-				value={date}
+				date={date}
+				onChange={(newDate) => setDate(newDate)}
 			/>
 			<SDatePicker
-				label='label'
-				value={date}
+				label='deleted'
+				date={date}
 				deleted
-			/>
-		</>
+				onChange={(newDate) => setDate(newDate)}
+			/> */}
+		</div>
 	);
 };
 

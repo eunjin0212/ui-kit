@@ -13,7 +13,7 @@ export const DateIcon16 = (props: SVGProps<SVGSVGElement>) => {
 			<path
 				d='M1.86664 13.4667V4.00001C1.86664 3.63182 2.16512 3.33334 2.53331 3.33334H13.4666C13.8348 3.33334 14.1333 3.63182 14.1333 4.00001V13.4667C14.1333 13.8349 13.8348 14.1333 13.4666 14.1333H2.5333C2.16511 14.1333 1.86664 13.8349 1.86664 13.4667Z'
 				stroke='currentColor'
-				stroke-linecap='round'
+				strokeLinecap='round'
 			/>
 			<path
 				d='M2 5.33334V4.00001C2 3.63182 2.29848 3.33334 2.66667 3.33334H13.3333C13.7015 3.33334 14 3.63182 14 4.00001V5.33334C14 5.70153 13.7015 6.00001 13.3333 6.00001H2.66667C2.29848 6.00001 2 5.70153 2 5.33334Z'
@@ -26,7 +26,7 @@ export const DateIcon16 = (props: SVGProps<SVGSVGElement>) => {
 			<path
 				d='M4.66669 1.86667V3.2M11.3334 1.86667V3.2'
 				stroke='currentColor'
-				stroke-linecap='round'
+				strokeLinecap='round'
 			/>
 		</svg>
 	);
