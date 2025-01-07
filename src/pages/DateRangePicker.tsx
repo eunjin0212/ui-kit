@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import SDateRangePicker from '../components/SDateRangePicker';
-import { today, yesterday } from '../utils/date';
+import { yesterday } from '../utils/date';
 
 const DatePicker = () => {
-	const [date, setDate] = useState<[string, string]>([yesterday, today]);
+	const [date, setDate] = useState<[string, string]>([yesterday, '2025-03-01']);
 	return (
 		<div className='flex flex-col gap-y-12pxr'>
-			<SDateRangePicker value={date} />
-			{date}
+			{date[0]} ~ {date[1]}
+			<SDateRangePicker date={date} />
 			<SDateRangePicker
 				label='label'
-				value={date}
-				setDate={(newDate) => setDate(newDate)}
+				date={date}
+				onChange={(newDate) => setDate(newDate)}
 			/>
 			<SDateRangePicker
 				label='deleted'
-				value={date}
+				date={date}
 				deleted
 			/>
 		</div>

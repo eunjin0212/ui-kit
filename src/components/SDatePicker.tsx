@@ -30,6 +30,7 @@ const SDatePicker = ({
 	);
 
 	const datePickerRef = useRef<HTMLDivElement>(null);
+	const [datePickerRect, setDatePickerRect] = useState<DOMRect | null>(null);
 
 	const calendar = useMemo(() => {
 		const days = getDaysInMonth(today);
@@ -58,14 +59,6 @@ const SDatePicker = ({
 			}
 			return newMonth;
 		});
-
-		// if (type === 'prev') {
-		// 	setCurrentMonth(currentMonth === 1 ? 12 : currentMonth - 1);
-		// 	if (currentMonth === 1) setCurrentYear(currentYear - 1);
-		// } else {
-		// 	setCurrentMonth(currentMonth === 12 ? 1 : currentMonth + 1);
-		// 	if (currentMonth === 12) setCurrentYear(currentYear + 1);
-		// }
 	}
 
 	const formatDate = (year: number, month: number, day: number) => {
@@ -84,6 +77,12 @@ const SDatePicker = ({
 		setCurrentDate('');
 		onChange?.('');
 	};
+
+	useEffect(() => {
+		if (datePickerRef.current) {
+			setDatePickerRect(datePickerRef.current.getBoundingClientRect());
+		}
+	}, [currentDate, isOpen]);
 
 	useEffect(() => {
 		setCurrentDate(date || today);
@@ -125,6 +124,7 @@ const SDatePicker = ({
 				/>
 			</div>
 			<DatePickerPortal
+				parentRect={datePickerRect}
 				parentRef={datePickerRef}
 				isOpen={isOpen}
 				setIsOpen={setIsOpen}

@@ -2,80 +2,142 @@ import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import SInput from './SInput';
 import { DateIcon16 } from '../assets/DateIcon';
 import { Close12 } from '../assets/CloseIcon';
-import { getDaysInMonth, today } from '../utils/date';
+import { getDaysInMonth, oneMonthAgo, today } from '../utils/date';
 import Icon from './Icon';
 import DateBox from './datePicker/DateBox';
 import DatePickerPortal from './datePicker/DatePickerPortal';
 
 interface SDateRangePickerProps {
-	value: [string, string];
+	date: [string, string];
 	label?: string;
 	deleted?: boolean;
-	setDate?: (date: [string, string]) => void;
+	onChange?: (date: [string, string]) => void;
 }
 
 const SDateRangePicker = ({
-	value,
+	date,
 	label,
 	deleted = false,
-	setDate,
+	onChange,
 }: SDateRangePickerProps) => {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
+	const [dateRange, setDateRange] = useState<[string, string]>(date);
 
-	const [currentStartDate, setCurrentStartDate] = useState<string>(value[0]);
-	const [currentEndDate, setCurrentEndDate] = useState<string>(value[1]);
-	const [currentYear, setCurrentYear] = useState<number>(
-		new Date().getFullYear()
+	// Date states for left and right calendars
+	const [leftYear, setLeftYear] = useState<number>(
+		Number(dateRange[0].split('-')[0])
 	);
-	const [currentMonth, setCurrentMonth] = useState<number>(
-		new Date().getMonth() + 1
+	const [leftMonth, setLeftMonth] = useState<number>(
+		Number(dateRange[0].split('-')[1])
+	);
+
+	const [rightYear, setRightYear] = useState<number>(
+		Number(dateRange[1].split('-')[0])
+	);
+	const [rightMonth, setRightMonth] = useState<number>(
+		Number(dateRange[1].split('-')[1])
 	);
 
 	const datePickerRef = useRef<HTMLDivElement>(null);
+	const [datePickerRect, setDatePickerRect] = useState<DOMRect | null>(null);
 
-	const calendar = useMemo(() => {
+	// Calendar generation for both calendars
+	const createCalendar = (year: number, month: number) => {
 		const days = getDaysInMonth(today);
-		const firstDayIndex = new Date(currentYear, currentMonth - 1, 1).getDay();
+		const firstDayIndex = new Date(year, month - 1, 1).getDay();
+
 		const prevMonthDays =
-			firstDayIndex === 0 ? [] : getDaysInMonth(today).slice(-firstDayIndex);
+			firstDayIndex === 0 ? [] : getDaysInMonth(oneMonthAgo).slice(-firstDayIndex);
+
 		const remainingDays = (7 - ((days.length + firstDayIndex) % 7)) % 7;
 		const afterMonthDays = Array.from({ length: remainingDays }, (_, i) => i + 1);
 
 		return { days, prevMonthDays, afterMonthDays };
-	}, [currentYear, currentMonth]);
+	};
 
-	const getNewMonth = (type: 'prev' | 'next') => {
-		if (type === 'prev') {
-			setCurrentMonth(currentMonth === 1 ? 12 : currentMonth - 1);
-			if (currentMonth === 1) setCurrentYear(currentYear - 1);
+	const leftCalendar = useMemo(
+		() => createCalendar(leftYear, leftMonth),
+		[leftYear, leftMonth]
+	);
+	const rightCalendar = useMemo(
+		() => createCalendar(rightYear, rightMonth),
+		[rightYear, rightMonth]
+	);
+
+	// Month navigation
+	const updateMonth = (type: 'prev' | 'next', side: 'left' | 'right') => {
+		if (side === 'left') {
+			setLeftMonth((prev) => {
+				let newMonth = type === 'prev' ? prev - 1 : prev + 1;
+				if (newMonth < 1) {
+					setLeftYear((prev) => prev - 1);
+					newMonth = 12;
+				} else if (newMonth > 12) {
+					setLeftYear((prev) => prev + 1);
+					newMonth = 1;
+				}
+				return newMonth;
+			});
 		} else {
-			setCurrentMonth(currentMonth === 12 ? 1 : currentMonth + 1);
-			if (currentMonth === 12) setCurrentYear(currentYear + 1);
+			setRightMonth((prev) => {
+				let newMonth = type === 'prev' ? prev - 1 : prev + 1;
+				if (newMonth < 1) {
+					setRightYear((prev) => prev - 1);
+					newMonth = 12;
+				} else if (newMonth > 12) {
+					setRightYear((prev) => prev + 1);
+					newMonth = 1;
+				}
+				return newMonth;
+			});
 		}
 	};
 
-	// const formatDate = (year: number, month: number, day: number) => {
-	// 	return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-	// };
+	// Date formatting
+	const formatDate = (year: number, month: number, day: number) => {
+		return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+	};
 
-	const handleDateClick = (day: number) => {
-		console.log(day);
-		// const date = formatDate(currentYear, currentMonth, day);
-		// setCurrentDate(date);
-		// setDate?.(date);
+	const handleDateClick = (year: number, month: number, day: number) => {
+		const selectedDate = formatDate(year, month, day);
+
+		if (!dateRange[0] || selectedDate < dateRange[0]) {
+			setDateRange((prev) => (prev[0] = selectedDate));
+			// setCurrentStartDate(selectedDate);
+		} else {
+			setDateRange((prev) => (prev[1] = selectedDate));
+
+			// setCurrentEndDate(selectedDate);
+			onChange?.(dateRange);
+		}
 	};
 
 	const handleDeleteDate = (event: MouseEvent) => {
 		event.stopPropagation();
-		// setCurrentDate('');
+		setDateRange(['', '']);
+		onChange?.(dateRange);
 	};
 
-	useEffect(() => {
-		setCurrentStartDate(value[0]);
-		setCurrentEndDate(value[1]);
+	// const calendar = useMemo(() => {
+	// 	const days = getDaysInMonth(today);
+	// 	const firstDayIndex = new Date(currentYear, currentMonth - 1, 1).getDay();
+	// 	const prevMonthDays =
+	// 		firstDayIndex === 0 ? [] : getDaysInMonth(today).slice(-firstDayIndex);
+	// 	const remainingDays = (7 - ((days.length + firstDayIndex) % 7)) % 7;
+	// 	const afterMonthDays = Array.from({ length: remainingDays }, (_, i) => i + 1);
 
-		console.log(value);
-	}, [value]);
+	// 	return { days, prevMonthDays, afterMonthDays };
+	// }, [currentYear, currentMonth]);
+
+	useEffect(() => {
+		if (datePickerRef.current) {
+			setDatePickerRect(datePickerRef.current.getBoundingClientRect());
+		}
+	}, [isOpen]);
+
+	useEffect(() => {
+		setDateRange([date[0], date[1]]);
+	}, [date]);
 	return (
 		<>
 			<div
@@ -87,7 +149,7 @@ const SDateRangePicker = ({
 				<SInput
 					useInsideLabel
 					label={label}
-					value={`${currentStartDate} ~ ${currentEndDate}`}
+					value={`${dateRange[0]} ~ ${dateRange[1]}`}
 					readonly
 					prepend={<DateIcon16 className='text-Grey_Darken-1' />}
 					inputContainerClassName='px-8pxr'
@@ -108,68 +170,29 @@ const SDateRangePicker = ({
 				/>
 			</div>
 			<DatePickerPortal
+				parentRect={datePickerRect}
 				parentRef={datePickerRef}
 				isOpen={isOpen}
 				setIsOpen={setIsOpen}
 			>
 				<div className='rounded-8pxr p-24pxr shadow-dropdownOptions'>
-					<div className='flex flex-nowrap items-center'>
+					<div className='flex flex-nowrap items-start'>
 						{/* Start Date Picker */}
 						<div className='w-fit'>
-							<div className='flex flex-nowrap items-center gap-x-20pxr text-14pxr'>
-								{/* Year Navigation */}
-								<div className='flex flex-nowrap items-center'>
-									<button
-										type='button'
-										name='prev-year'
-										title='Previous Year'
-										onClick={() => setCurrentYear(currentYear - 1)}
-									>
-										<Icon
-											name={'ArrowLeft_12'}
-											className='text-Grey_Lighten-2'
-										/>
-									</button>
-									<span className='mx-12pxr w-40pxr text-center'>{currentYear}</span>
-									<button
-										type='button'
-										name='next-year'
-										title='Next Year'
-										onClick={() => setCurrentYear(currentYear + 1)}
-									>
-										<Icon
-											name={'ArrowRight_12'}
-											className='text-Grey_Lighten-2'
-										/>
-									</button>
-								</div>
-
-								{/* Month Navigation */}
-								<div className='flex flex-nowrap items-center'>
-									<button
-										type='button'
-										name='prev-month'
-										title='Previous       '
-										onClick={() => getNewMonth('prev')}
-									>
-										<Icon
-											name={'ArrowLeft_12'}
-											className='text-Grey_Lighten-2'
-										/>
-									</button>
-									<span className='mx-12pxr w-100pxr text-center'>{currentMonth}월</span>
-									<button
-										type='button'
-										name='next-month'
-										title='Next Month'
-										onClick={() => getNewMonth('next')}
-									>
-										<Icon
-											name={'ArrowRight_12'}
-											className='text-Grey_Lighten-2'
-										/>
-									</button>
-								</div>
+							<div className='relative w-full text-center text-14pxr'>
+								<button
+									type='button'
+									name='prev'
+									title='Previous'
+									// onClick={() => setCurrentYear(currentYear - 1)}
+									className='absolute left-0 top-1/2 -translate-y-1/2'
+								>
+									<Icon
+										name={'ArrowLeft_12'}
+										className='text-Grey_Lighten-2'
+									/>
+								</button>
+								{leftYear}.{leftMonth}
 							</div>
 
 							<div className='mt-8pxr grid grid-cols-7 gap-x-10pxr'>
@@ -184,30 +207,30 @@ const SDateRangePicker = ({
 							</div>
 
 							<div className='mt-16pxr grid grid-cols-7 gap-x-10pxr gap-y-8pxr'>
-								{calendar.prevMonthDays.map((day, idx) => (
+								{leftCalendar.prevMonthDays.map((day, idx) => (
 									<DateBox
 										key={idx}
 										date={day}
 										className='text-Grey_Lighten-2'
 									/>
 								))}
-								{calendar.days.map((day) => (
+								{leftCalendar.days.map((day) => (
 									<DateBox
 										key={day}
 										date={day}
 										selected={
-											currentStartDate ===
-											`${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+											dateRange[0] ===
+											`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 										}
 										isToday={
-											today.split('-')[0] === String(currentYear) &&
-											today.split('-')[1] === String(currentMonth).padStart(2, '0') &&
+											today.split('-')[0] === String(leftYear) &&
+											today.split('-')[1] === String(leftMonth).padStart(2, '0') &&
 											today.split('-')[2] === String(day).padStart(2, '0')
 										}
-										onClick={() => handleDateClick(day)}
+										// onClick={() => handleDateClick(day)}
 									/>
 								))}
-								{calendar.afterMonthDays.map((day, idx) => (
+								{leftCalendar.afterMonthDays.map((day, idx) => (
 									<DateBox
 										key={`after-${idx}`}
 										date={day}
@@ -221,60 +244,20 @@ const SDateRangePicker = ({
 
 						{/* End Date Picker */}
 						<div className='w-fit'>
-							<div className='flex flex-nowrap items-center gap-x-20pxr text-14pxr'>
-								{/* Year Navigation */}
-								<div className='flex flex-nowrap items-center'>
-									<button
-										type='button'
-										name='prev-year'
-										title='Previous Year'
-										onClick={() => setCurrentYear(currentYear - 1)}
-									>
-										<Icon
-											name={'ArrowLeft_12'}
-											className='text-Grey_Lighten-2'
-										/>
-									</button>
-									<span className='mx-12pxr w-40pxr text-center'>{currentYear}</span>
-									<button
-										type='button'
-										name='next-year'
-										title='Next Year'
-										onClick={() => setCurrentYear(currentYear + 1)}
-									>
-										<Icon
-											name={'ArrowRight_12'}
-											className='text-Grey_Lighten-2'
-										/>
-									</button>
-								</div>
-
-								{/* Month Navigation */}
-								<div className='flex flex-nowrap items-center'>
-									<button
-										type='button'
-										name='prev-month'
-										title='Previous       '
-										onClick={() => getNewMonth('prev')}
-									>
-										<Icon
-											name={'ArrowLeft_12'}
-											className='text-Grey_Lighten-2'
-										/>
-									</button>
-									<span className='mx-12pxr w-100pxr text-center'>{currentMonth}월</span>
-									<button
-										type='button'
-										name='next-month'
-										title='Next Month'
-										onClick={() => getNewMonth('next')}
-									>
-										<Icon
-											name={'ArrowRight_12'}
-											className='text-Grey_Lighten-2'
-										/>
-									</button>
-								</div>
+							<div className='relative w-full text-center text-14pxr'>
+								{rightYear}.{rightMonth}
+								<button
+									type='button'
+									name='next'
+									title='Next'
+									// onClick={() => setCurrentYear(currentYear + 1)}
+									className='absolute right-0 top-1/2 -translate-y-1/2'
+								>
+									<Icon
+										name={'ArrowRight_12'}
+										className='text-Grey_Lighten-2'
+									/>
+								</button>
 							</div>
 
 							<div className='mt-8pxr grid grid-cols-7 gap-x-10pxr'>
@@ -289,30 +272,30 @@ const SDateRangePicker = ({
 							</div>
 
 							<div className='mt-16pxr grid grid-cols-7 gap-x-10pxr gap-y-8pxr'>
-								{calendar.prevMonthDays.map((day, idx) => (
+								{rightCalendar.prevMonthDays.map((day, idx) => (
 									<DateBox
 										key={idx}
 										date={day}
 										className='text-Grey_Lighten-2'
 									/>
 								))}
-								{calendar.days.map((day) => (
+								{rightCalendar.days.map((day) => (
 									<DateBox
 										key={day}
 										date={day}
 										selected={
-											currentEndDate ===
-											`${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+											dateRange[1] ===
+											`${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 										}
 										isToday={
-											today.split('-')[0] === String(currentYear) &&
-											today.split('-')[1] === String(currentMonth).padStart(2, '0') &&
+											today.split('-')[0] === String(rightYear) &&
+											today.split('-')[1] === String(rightMonth).padStart(2, '0') &&
 											today.split('-')[2] === String(day).padStart(2, '0')
 										}
-										onClick={() => handleDateClick(day)}
+										// onClick={() => handleDateClick(day)}
 									/>
 								))}
-								{calendar.afterMonthDays.map((day, idx) => (
+								{rightCalendar.afterMonthDays.map((day, idx) => (
 									<DateBox
 										key={`after-${idx}`}
 										date={day}

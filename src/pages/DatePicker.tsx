@@ -10,7 +10,7 @@ const DatePicker = () => {
 				date={date}
 				onChange={(newDate) => setDate(newDate)}
 			/>
-			{/* <SDatePicker
+			<SDatePicker
 				label='label'
 				date={date}
 				onChange={(newDate) => setDate(newDate)}
@@ -20,7 +20,7 @@ const DatePicker = () => {
 				date={date}
 				deleted
 				onChange={(newDate) => setDate(newDate)}
-			/> */}
+			/>
 		</div>
 	);
 };

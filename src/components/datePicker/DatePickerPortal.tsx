@@ -16,6 +16,7 @@ const initParentDOMRect = {
 };
 
 type Props = {
+	parentRect: DOMRect | null;
 	parentRef: RefObject<HTMLDivElement>;
 	children: React.ReactNode;
 	isOpen: boolean;
@@ -23,6 +24,7 @@ type Props = {
 };
 
 const DatePickerPortal = ({
+	parentRect,
 	parentRef,
 	children,
 	isOpen,
@@ -53,8 +55,7 @@ const DatePickerPortal = ({
 	}, [handleClickOutSide]);
 
 	useEffect(() => {
-		if (portalRef.current && parentRef.current) {
-			const parentRect = portalRef.current.getBoundingClientRect();
+		if (portalRef.current && parentRect) {
 			const dropdownHeight = portalRef.current.offsetHeight;
 			const viewportHeight = window.innerHeight;
 			const margin = 4;
@@ -64,16 +65,12 @@ const DatePickerPortal = ({
 					? parentRect.top - (dropdownHeight + margin)
 					: parentRect.bottom + margin;
 
-			console.log('top : ', top);
-			console.log('left : ', parentRect.left);
-
 			setPosition({
 				top: top,
-				// width: parentRect.width,
 				left: parentRect.left,
 			});
 		}
-	}, [parentRef, portalRef, isOpen]);
+	}, [parentRect, parentRef, portalRef, isOpen]);
 
 	return (
 		<>
