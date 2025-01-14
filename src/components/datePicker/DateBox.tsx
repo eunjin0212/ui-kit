@@ -3,22 +3,32 @@ const DateBox = ({
 	className = '',
 	disabled = false,
 	selected = false,
+	type = '',
 	isToday = false,
 	inRange = false,
 	onClick,
+	onMouseOver,
 }: {
 	date: number | string;
 	className?: string;
 	disabled?: boolean;
 	selected?: boolean;
+	type?: 'start' | 'end' | '';
 	isToday?: boolean;
 	inRange?: boolean;
 	onClick?: (date: number) => void;
+	onMouseOver?: (date: number) => void;
 }) => {
 	function handleClickDate() {
 		if (typeof date === 'string') return;
 
 		onClick?.(date);
+	}
+
+	function handleHoverDate() {
+		if (typeof date === 'string') return;
+
+		onMouseOver?.(date);
 	}
 	return (
 		<div
@@ -27,13 +37,17 @@ const DateBox = ({
 				disabled ? 'cursor-default' : 'cursor-pointer',
 
 				inRange
-					? 'relative before:absolute before:left-0 before:top-0 before:h-full before:w-full before:bg-Blue_C_Lighten-5'
+					? 'relative before:absolute  before:top-0 before:h-full before:w-full before:bg-Blue_C_Lighten-5'
 					: '',
-				inRange && selected ? 'before:w-14pxr' : '',
+				type === 'start' && inRange && selected
+					? 'before:right-0 before:w-14pxr'
+					: '',
+				type === 'end' && inRange && selected ? 'before:left-0 before:w-14pxr' : '',
 
 				className,
 			].join(' ')}
 			onClick={() => handleClickDate()}
+			onMouseOver={() => handleHoverDate()}
 		>
 			<div
 				className={[

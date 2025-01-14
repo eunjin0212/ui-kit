@@ -11,6 +11,7 @@ interface SDateRangePickerProps {
 	date: [string, string];
 	label?: string;
 	deleted?: boolean;
+
 	onChange?: (date: [string, string]) => void;
 }
 
@@ -22,6 +23,7 @@ const SDateRangePicker = ({
 }: SDateRangePickerProps) => {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const [dateRange, setDateRange] = useState<[string, string]>(date);
+	const [hoverDate, setHoverDate] = useState<string>('');
 
 	// Date states for left and right calendars
 	const [leftYear, setLeftYear] = useState<number>(
@@ -89,6 +91,7 @@ const SDateRangePicker = ({
 	};
 
 	const handleDateClick = (year: number, month: number, day: number) => {
+		setHoverDate('');
 		const selectedDate = formatDate(year, month, day);
 
 		if (!dateRange[0] || !!dateRange[1] || selectedDate < dateRange[0]) {
@@ -100,6 +103,10 @@ const SDateRangePicker = ({
 		}
 	};
 
+	const handleDateHover = (year: number, month: number, day: number) => {
+		setHoverDate(formatDate(year, month, day));
+	};
+
 	const handleDeleteDate = (event: MouseEvent) => {
 		event.stopPropagation();
 		const clearedRange: [string, string] = ['', ''];
@@ -108,9 +115,23 @@ const SDateRangePicker = ({
 	};
 
 	const checkInRange = (date: string) => {
-		// date[0] <= year, month, day <= date[1]
+		// dateRange[0] <= year, month, day <= dateRange[1]
 
 		return dateRange[0] <= date && date <= dateRange[1];
+	};
+
+	const checkInHoverRange = (date: string) => {
+		// dateRange[0] <= year, month, day <= hoverDate
+		// hoverDate <= year, month, day <= dateRange[0]
+		if (!hoverDate) return;
+
+		if (!!dateRange[0] && !dateRange[1]) {
+			if (dateRange[0] <= hoverDate) {
+				return dateRange[0] <= date && date <= hoverDate;
+			} else if (dateRange[0] >= hoverDate) {
+				return hoverDate <= date && date <= dateRange[0];
+			}
+		}
 	};
 
 	useEffect(() => {
@@ -238,15 +259,33 @@ const SDateRangePicker = ({
 											dateRange[1] ===
 												`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 										}
+										type={
+											(!hoverDate &&
+												dateRange[0] ===
+													`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`) ||
+											(!!hoverDate && dateRange[0] < hoverDate)
+												? 'start'
+												: dateRange[1] ===
+															`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}` ||
+													  dateRange[0] > hoverDate
+													? 'end'
+													: ''
+										}
 										isToday={
 											today.split('-')[0] === String(leftYear) &&
 											today.split('-')[1] === String(leftMonth).padStart(2, '0') &&
 											today.split('-')[2] === String(day).padStart(2, '0')
 										}
-										inRange={checkInRange(
-											`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-										)}
+										inRange={
+											checkInRange(
+												`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+											) ||
+											checkInHoverRange(
+												`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+											)
+										}
 										onClick={() => handleDateClick(leftYear, leftMonth, day)}
+										onMouseOver={() => handleDateHover(leftYear, leftMonth, day)}
 									/>
 								))}
 								{leftCalendar.afterMonthDays.map((day, idx) => (
@@ -307,15 +346,32 @@ const SDateRangePicker = ({
 											dateRange[1] ===
 												`${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 										}
+										type={
+											(!hoverDate &&
+												dateRange[0] ===
+													`${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`) ||
+											(!!hoverDate && dateRange[0] < hoverDate)
+												? 'start'
+												: dateRange[1] ===
+													  `${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+													? 'end'
+													: ''
+										}
 										isToday={
 											today.split('-')[0] === String(rightYear) &&
 											today.split('-')[1] === String(rightMonth).padStart(2, '0') &&
 											today.split('-')[2] === String(day).padStart(2, '0')
 										}
-										inRange={checkInRange(
-											`${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-										)}
+										inRange={
+											checkInRange(
+												`${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+											) ||
+											checkInHoverRange(
+												`${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+											)
+										}
 										onClick={() => handleDateClick(rightYear, rightMonth, day)}
+										onMouseOver={() => handleDateHover(rightYear, rightMonth, day)}
 									/>
 								))}
 								{rightCalendar.afterMonthDays.map((day, idx) => (
