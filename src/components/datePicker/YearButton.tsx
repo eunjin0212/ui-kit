@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import MoveButton from './MoveButton';
+import { useYear } from '../../hooks/useDate';
 
 interface YearButtonProps {
 	year: string;
@@ -7,22 +7,17 @@ interface YearButtonProps {
 }
 
 const YearButton = ({ year, updateYear }: YearButtonProps) => {
-	const [yearValue, setYearValue] = useState(year);
+ const { yearValue, handleYear } = useYear(year)
 
-	useEffect(() => {
-		setYearValue(year);
-	}, [year]);
-
-	const handleYear = (target: 'prev' | 'next') => {
-		const prevYear = parseInt(year, 10);
-		const nextYear = String(target === 'next' ? prevYear + 1 : prevYear - 1);
-		setYearValue(() => nextYear);
-		updateYear(nextYear);
+	const handleUpdateYear = (target: 'prev' | 'next') => {
+  handleYear(target)
+		updateYear(yearValue);
 	};
+
 	return (
 		<MoveButton
 			text={yearValue}
-			onClick={handleYear}
+			onClick={handleUpdateYear}
 		/>
 	);
 };

@@ -10,6 +10,7 @@ import MoveButton from './MoveButton';
 import YearButton from './YearButton';
 import DateWrapper from './DateWrapper';
 import { formatDateToObject, formatDateToString } from '../../utils/date';
+import { useMonth } from '../../hooks/useDate';
 
 const SingleDate = ({
 	date,
@@ -26,31 +27,28 @@ const SingleDate = ({
 }) => {
 	const [dateObject, setDateObject] = useState(formatDateToObject(date));
 
+ const { monthData, handleMonth } = useMonth(
+  dateObject.year,
+  dateObject.month
+);
+
 	useEffect(() => {
 		setDateObject(formatDateToObject(date));
 	}, [date]);
 
 	const handleYear = (val: string) => {
-		setDateObject((prev) => {
-			return {
-				...prev,
-				year: +val,
-			};
-		});
+		setDateObject((prev) => ({
+   ...prev,
+   year: +val,
+  }));
 	};
 
-	const handleMonth = (type: 'next' | 'prev') => {
-		setDateObject((prev) => {
-			const currentDate = new Date(prev.year, prev.month - 1);
-			currentDate.setMonth(currentDate.getMonth() + (type === 'next' ? 1 : -1));
-
-			return {
-				...prev,
-				year: currentDate.getFullYear(),
-				month: currentDate.getMonth() + 1,
-			};
-		});
-	};
+ useEffect(() => {
+  setDateObject((prev) => ({
+   ...prev,
+   ...monthData,
+  }));
+ }, [monthData])
 
 	const handleChange = (d: number) => {
 		setDate(formatDateToString({ ...dateObject, day: d }));
@@ -69,7 +67,7 @@ const SingleDate = ({
 						updateYear={handleYear}
 					/>
 					<MoveButton
-						text={`${dateObject.month}월`}
+						text={`${monthData.month}월`}
 						onClick={handleMonth}
 						className='w-2/3'
 					/>
