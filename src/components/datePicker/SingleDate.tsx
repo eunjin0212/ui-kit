@@ -9,7 +9,7 @@ import {
 import MoveButton from './MoveButton';
 import YearButton from './YearButton';
 import DateWrapper from './DateWrapper';
-import { addZero, formatDate } from '../../utils/date';
+import { formatDateToObject, formatDateToString } from '../../utils/date';
 
 const SingleDate = ({
 	date,
@@ -24,40 +24,36 @@ const SingleDate = ({
 	setOpen: Dispatch<SetStateAction<boolean>>;
 	parentRef: RefObject<HTMLElement>;
 }) => {
-	const [dateObject, setDateObject] = useState({
-		year: '',
-		month: '',
-		date: '',
-	});
+	const [dateObject, setDateObject] = useState(formatDateToObject(date));
 
 	useEffect(() => {
-		setDateObject(formatDate(date));
+		setDateObject(formatDateToObject(date));
 	}, [date]);
 
 	const handleYear = (val: string) => {
-		setDateObject((prev) => ({
-			...prev,
-			year: val,
-		}));
+		setDateObject((prev) => {
+			return {
+				...prev,
+				year: +val,
+			};
+		});
 	};
 
 	const handleMonth = (type: 'next' | 'prev') => {
 		setDateObject((prev) => {
-			const currentDate = new Date(parseInt(prev.year), parseInt(prev.month) - 1);
+			const currentDate = new Date(prev.year, prev.month - 1);
 			currentDate.setMonth(currentDate.getMonth() + (type === 'next' ? 1 : -1));
 
 			return {
 				...prev,
-				year: String(currentDate.getFullYear()),
-				month: String(currentDate.getMonth() + 1),
+				year: currentDate.getFullYear(),
+				month: currentDate.getMonth() + 1,
 			};
 		});
 	};
 
 	const handleChange = (d: number) => {
-		setDate(
-			`${dateObject.year}-${addZero(dateObject.month)}-${addZero(String(d))}`
-		);
+		setDate(formatDateToString({ ...dateObject, day: d }));
 	};
 
 	return (
@@ -69,7 +65,7 @@ const SingleDate = ({
 			<>
 				<div className='mb-8pxr flex items-center gap-20pxr'>
 					<YearButton
-						year={dateObject.year}
+						year={`${dateObject.year}`}
 						updateYear={handleYear}
 					/>
 					<MoveButton
@@ -79,8 +75,9 @@ const SingleDate = ({
 					/>
 				</div>
 				<DateComponent
-					date={`${dateObject.year}-${dateObject.month}-${dateObject.date}`}
+					viewDate={`${dateObject.year}-${dateObject.month}-${dateObject.day}`}
 					onclick={handleChange}
+					currentDate={date}
 				/>
 			</>
 		</DateWrapper>

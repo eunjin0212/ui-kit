@@ -18,12 +18,11 @@ const DateWrapper = ({
 	const { position, dropdownRef } = useDropdownPosition(parentRef, open);
 	useClickOutside([parentRef, dropdownRef], () => setOpen(false));
  
- console.log(parentRef)
 	return (
 		open &&
 		createPortal(
 			<div
-				className='absolute h-292pxr w-302pxr rounded-8pxr px-23pxr py-24pxr shadow-[2px_2px_12px_2px_#00000033]'
+				className='absolute min-h-292pxr w-302pxr rounded-8pxr px-23pxr py-24pxr shadow-[2px_2px_12px_2px_#00000033]'
 				style={{
 					top: position.top,
 					left: position.left,
