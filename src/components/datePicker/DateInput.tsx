@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { CalendarIcon16 } from '../assets/CalenderIcon';
-import { Close12 } from '../assets/CloseIcon';
+import { CalendarIcon16 } from '../../assets/CalenderIcon';
+import { Close12 } from '../../assets/CloseIcon';
 
 interface DateInputProps {
 	value: string;

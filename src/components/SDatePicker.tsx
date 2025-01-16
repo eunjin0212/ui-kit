@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import DateInput from './DateInput';
-import SingleDate from './SingleDate';
+import { useRef, useState } from 'react';
+import DateInput from './datePicker/DateInput';
+import SingleDate from './datePicker/SingleDate';
 
 interface SDatePickerProps {
 	onChange: (date: string) => void;
@@ -9,6 +9,7 @@ interface SDatePickerProps {
 const SDatePicker = ({ onChange }: SDatePickerProps) => {
 	const [selectedDate, setSelectedDate] = useState<string>('');
 	const [open, setOpen] = useState<boolean>(false);
+ const datePickerRef = useRef<HTMLDivElement | null>(null)
 
 	const handleDateChange = (value: string) => {
 		setSelectedDate(value);
@@ -20,16 +21,18 @@ const SDatePicker = ({ onChange }: SDatePickerProps) => {
 	};
 
 	return (
-		<div>
+		<div ref={datePickerRef} className='relative'>
 			<DateInput
 				value={selectedDate}
 				onChange={handleDateChange}
 				onClick={handleClick}
 			/>
 			<SingleDate
+    parentRef={datePickerRef}
 				open={open}
+    setOpen={setOpen}
 				date={selectedDate}
-    setDate={setSelectedDate}
+				setDate={setSelectedDate}
 			/>
 		</div>
 	);
