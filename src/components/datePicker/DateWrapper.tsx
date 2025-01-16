@@ -23,7 +23,7 @@ const DateWrapper = ({
 		open &&
 		createPortal(
 			<div
-				className='absolute h-292pxr w-302pxr rousnded-8pxr px-23pxr py-24pxr shadow-[2px_2px_12px_2px_#00000033]'
+				className='absolute h-292pxr w-302pxr rounded-8pxr px-23pxr py-24pxr shadow-[2px_2px_12px_2px_#00000033]'
 				style={{
 					top: position.top,
 					left: position.left,
