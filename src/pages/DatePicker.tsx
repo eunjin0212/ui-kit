@@ -29,6 +29,10 @@ const DatePicker = () => {
     />
     <SDatePicker
      onChange={handleChange}
+     disableDates={[null, '2025-01-20']}
+    />
+    <SDatePicker
+     onChange={handleChange}
      disableDates={['2025-01-01', '2025-01-20']}
     />
    </div>
