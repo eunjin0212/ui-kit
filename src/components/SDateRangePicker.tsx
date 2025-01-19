@@ -2,16 +2,19 @@ import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import SInput from './SInput';
 import { DateIcon16 } from '../assets/DateIcon';
 import { Close12 } from '../assets/CloseIcon';
-import { getDaysInMonth, oneMonthAgo, today } from '../utils/date';
+import { getCalculateDate, today } from '../utils/date';
 import Icon from './Icon';
-import DateBox from './datePicker/DateBox';
+import DateBox, { Type } from './datePicker/DateBox';
 import DatePickerPortal from './datePicker/DatePickerPortal';
+import useDatePicker from '../hooks/useDatePicker';
 
 interface SDateRangePickerProps {
 	date: [string, string];
 	label?: string;
 	deleted?: boolean;
-
+	disabled?: boolean;
+	selectable?: [string, string];
+	limit?: number;
 	onChange?: (date: [string, string]) => void;
 }
 
@@ -19,76 +22,44 @@ const SDateRangePicker = ({
 	date,
 	label,
 	deleted = false,
+	disabled = false,
+	selectable = ['', ''],
+	limit,
 	onChange,
 }: SDateRangePickerProps) => {
+	const { formatDate, createCalendar, calculateYearMonth } = useDatePicker();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const [dateRange, setDateRange] = useState<[string, string]>(date);
 	const [hoverDate, setHoverDate] = useState<string>('');
 
-	// Date states for left and right calendars
-	const [leftYear, setLeftYear] = useState<number>(
+	const [prevYear, setPrevYear] = useState<number>(
 		Number(dateRange[0].split('-')[0])
 	);
-	const [leftMonth, setLeftMonth] = useState<number>(
+	const [prevMonth, setPrevMonth] = useState<number>(
 		Number(dateRange[0].split('-')[1])
 	);
 
-	const rightYear = useMemo(() => {
-		return Number(leftMonth + 1) === 13 ? leftYear + 1 : leftYear;
-	}, [leftMonth, leftYear]);
-
-	const rightMonth = useMemo(() => {
-		return Number(leftMonth + 1) === 13 ? 1 : leftMonth + 1;
-	}, [leftMonth]);
+	const nextYear = prevMonth + 1 === 13 ? prevYear + 1 : prevYear;
+	const nextMonth = prevMonth + 1 === 13 ? 1 : prevMonth + 1;
 
 	const datePickerRef = useRef<HTMLDivElement>(null);
 	const [datePickerRect, setDatePickerRect] = useState<DOMRect | null>(null);
 
-	// Calendar generation for both calendars
-	const createCalendar = (year: number, month: number) => {
-		const days = getDaysInMonth(today);
-		const firstDayIndex = new Date(year, month - 1, 1).getDay();
-
-		const prevMonthDays =
-			firstDayIndex === 0 ? [] : getDaysInMonth(oneMonthAgo).slice(-firstDayIndex);
-
-		const remainingDays = (7 - ((days.length + firstDayIndex) % 7)) % 7;
-		const afterMonthDays = Array.from({ length: remainingDays }, (_, i) => i + 1);
-
-		return { days, prevMonthDays, afterMonthDays };
-	};
-
-	const leftCalendar = useMemo(
-		() => createCalendar(leftYear, leftMonth),
-		[leftYear, leftMonth]
+	const prevCalendar = useMemo(
+		() => createCalendar(prevYear, prevMonth),
+		[createCalendar, prevYear, prevMonth]
 	);
-	const rightCalendar = useMemo(
-		() => createCalendar(rightYear, rightMonth),
-		[rightYear, rightMonth]
+	const nextCalendar = useMemo(
+		() => createCalendar(nextYear, nextMonth),
+		[createCalendar, nextYear, nextMonth]
 	);
 
 	function updateYearMonth(type: 'prev' | 'next') {
-		if (type === 'prev') {
-			if (leftMonth === 1) {
-				setLeftMonth(12);
-				setLeftYear((prev) => prev - 1);
-			} else {
-				setLeftMonth((prev) => prev - 1);
-			}
-		} else {
-			if (leftMonth === 12) {
-				setLeftMonth(1);
-				setLeftYear((prev) => prev + 1);
-			} else {
-				setLeftMonth((prev) => prev + 1);
-			}
-		}
-	}
+		const { newYear, newMonth } = calculateYearMonth(prevYear, prevMonth, type);
 
-	// Date formatting
-	const formatDate = (year: number, month: number, day: number) => {
-		return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-	};
+		setPrevYear(newYear);
+		setPrevMonth(newMonth);
+	}
 
 	const handleDateClick = (year: number, month: number, day: number) => {
 		setHoverDate('');
@@ -107,6 +78,26 @@ const SDateRangePicker = ({
 		setHoverDate(formatDate(year, month, day));
 	};
 
+	const isDateInRange = (date: string): boolean => {
+		// 1. 날짜 범위가 완전히 선택된 경우
+		if (dateRange[0] && dateRange[1]) {
+			return date >= dateRange[0] && date <= dateRange[1];
+		}
+
+		// 2. hover 상태의 날짜 범위를 확인
+		if (!hoverDate || !dateRange[0] || dateRange[1]) {
+			return false;
+		}
+
+		// 3. dateRange[0]과 hoverDate를 기준으로 범위 계산
+		const [start, end] =
+			dateRange[0] <= hoverDate
+				? [dateRange[0], hoverDate]
+				: [hoverDate, dateRange[0]];
+
+		return date >= start && date <= end;
+	};
+
 	const handleDeleteDate = (event: MouseEvent) => {
 		event.stopPropagation();
 		const clearedRange: [string, string] = ['', ''];
@@ -114,24 +105,21 @@ const SDateRangePicker = ({
 		onChange?.(clearedRange);
 	};
 
-	const checkInRange = (date: string) => {
-		// dateRange[0] <= year, month, day <= dateRange[1]
+	const isDisabledDate = (date: string): boolean => {
+		if (limit && dateRange[0] && !dateRange[1]) {
+			const minDate = getCalculateDate(dateRange[0], -limit);
+			const maxDate = getCalculateDate(dateRange[0], limit);
+			return !(minDate <= date && date <= maxDate);
+		}
 
-		return dateRange[0] <= date && date <= dateRange[1];
+		return !(date >= selectable[0] && date <= selectable[1]);
 	};
 
-	const checkInHoverRange = (date: string) => {
-		// dateRange[0] <= year, month, day <= hoverDate
-		// hoverDate <= year, month, day <= dateRange[0]
-		if (!hoverDate) return;
-
-		if (!!dateRange[0] && !dateRange[1]) {
-			if (dateRange[0] <= hoverDate) {
-				return dateRange[0] <= date && date <= hoverDate;
-			} else if (dateRange[0] >= hoverDate) {
-				return hoverDate <= date && date <= dateRange[0];
-			}
-		}
+	const getDateBoxType = (date: string): Type => {
+		if (date === dateRange[0])
+			return dateRange[1] ? 'start' : hoverDate < dateRange[0] ? 'end' : 'start';
+		if (date === dateRange[1]) return 'end';
+		return '';
 	};
 
 	useEffect(() => {
@@ -141,7 +129,7 @@ const SDateRangePicker = ({
 	}, [isOpen]);
 
 	useEffect(() => {
-		setDateRange([date[0], date[1]]);
+		setDateRange(date);
 	}, [date]);
 
 	return (
@@ -150,13 +138,17 @@ const SDateRangePicker = ({
 				title='datePickerButton'
 				ref={datePickerRef}
 				className='w-fit'
-				onClick={() => setIsOpen((prev) => !prev)}
+				onClick={() => {
+					if (disabled) return;
+					setIsOpen((prev) => !prev);
+				}}
 			>
 				<SInput
 					useInsideLabel
 					label={label}
 					value={`${dateRange[0]} ~ ${dateRange[1]}`}
 					readonly
+					disable={disabled}
 					prepend={<DateIcon16 className='text-Grey_Darken-1' />}
 					inputContainerClassName='px-8pxr'
 					inputClassName='w-210pxr text-center'
@@ -175,9 +167,10 @@ const SDateRangePicker = ({
 					}
 				/>
 			</div>
+
 			<DatePickerPortal
-				parentRect={datePickerRect}
 				parentRef={datePickerRef}
+				parentRect={datePickerRect}
 				isOpen={isOpen}
 				setIsOpen={setIsOpen}
 			>
@@ -187,7 +180,7 @@ const SDateRangePicker = ({
 							type='button'
 							name='prev'
 							title='Previous'
-							onClick={() => setLeftYear((prev) => prev - 1)}
+							onClick={() => setPrevYear((prev) => prev - 1)}
 						>
 							<Icon
 								name={'ArrowLeft_12'}
@@ -196,14 +189,14 @@ const SDateRangePicker = ({
 						</button>
 
 						<div className='mx-12pxr w-40pxr text-center text-14pxr leading-24pxr'>
-							{leftYear}
+							{prevYear}
 						</div>
 
 						<button
 							type='button'
 							name='next'
 							title='Next'
-							onClick={() => setLeftYear((prev) => prev + 1)}
+							onClick={() => setPrevYear((prev) => prev + 1)}
 						>
 							<Icon
 								name={'ArrowRight_12'}
@@ -228,7 +221,7 @@ const SDateRangePicker = ({
 										className='text-Grey_Lighten-2'
 									/>
 								</button>
-								{leftYear}.{String(leftMonth).padStart(2, '0')}
+								{prevYear}.{String(prevMonth).padStart(2, '0')}
 							</div>
 
 							<div className='mt-8pxr grid grid-cols-7'>
@@ -242,57 +235,33 @@ const SDateRangePicker = ({
 							</div>
 
 							<div className='mt-16pxr grid grid-cols-7 gap-y-8pxr'>
-								{leftCalendar.prevMonthDays.map((day, idx) => (
+								{prevCalendar.prevMonthDays.map((_, idx) => (
 									<DateBox
-										key={idx}
-										date={day}
-										className='text-Grey_Lighten-2'
+										key={`before-${idx}`}
+										date={''}
+										disabled
 									/>
 								))}
-								{leftCalendar.days.map((day) => (
+								{prevCalendar.days.map((day) => (
 									<DateBox
 										key={day}
 										date={day}
-										selected={
-											dateRange[0] ===
-												`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}` ||
-											dateRange[1] ===
-												`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-										}
-										type={
-											(!hoverDate &&
-												dateRange[0] ===
-													`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`) ||
-											(!!hoverDate && dateRange[0] < hoverDate)
-												? 'start'
-												: dateRange[1] ===
-															`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}` ||
-													  dateRange[0] > hoverDate
-													? 'end'
-													: ''
-										}
-										isToday={
-											today.split('-')[0] === String(leftYear) &&
-											today.split('-')[1] === String(leftMonth).padStart(2, '0') &&
-											today.split('-')[2] === String(day).padStart(2, '0')
-										}
-										inRange={
-											checkInRange(
-												`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-											) ||
-											checkInHoverRange(
-												`${leftYear}-${String(leftMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-											)
-										}
-										onClick={() => handleDateClick(leftYear, leftMonth, day)}
-										onMouseOver={() => handleDateHover(leftYear, leftMonth, day)}
+										selected={dateRange.some(
+											(date) => date === formatDate(prevYear, prevMonth, day)
+										)}
+										type={getDateBoxType(formatDate(prevYear, prevMonth, day))}
+										isToday={today === formatDate(prevYear, prevMonth, day)}
+										disabled={isDisabledDate(formatDate(prevYear, prevMonth, day))}
+										inRange={isDateInRange(formatDate(prevYear, prevMonth, day))}
+										onClick={() => handleDateClick(prevYear, prevMonth, day)}
+										onMouseOver={() => handleDateHover(prevYear, prevMonth, day)}
 									/>
 								))}
-								{leftCalendar.afterMonthDays.map((day, idx) => (
+								{prevCalendar.afterMonthDays.map((_, idx) => (
 									<DateBox
 										key={`after-${idx}`}
-										date={day}
-										className='text-Grey_Lighten-2'
+										date={''}
+										disabled
 									/>
 								))}
 							</div>
@@ -303,7 +272,7 @@ const SDateRangePicker = ({
 						{/* End Date Picker */}
 						<div className='w-fit'>
 							<div className='relative w-full text-center text-14pxr'>
-								{rightYear}.{String(rightMonth).padStart(2, '0')}
+								{nextYear}.{String(nextMonth).padStart(2, '0')}
 								<button
 									type='button'
 									name='next'
@@ -329,56 +298,33 @@ const SDateRangePicker = ({
 							</div>
 
 							<div className='mt-16pxr grid grid-cols-7 gap-y-8pxr'>
-								{rightCalendar.prevMonthDays.map((day, idx) => (
+								{nextCalendar.prevMonthDays.map((_, idx) => (
 									<DateBox
 										key={idx}
-										date={day}
-										className='text-Grey_Lighten-2'
+										date={''}
+										disabled
 									/>
 								))}
-								{rightCalendar.days.map((day) => (
+								{nextCalendar.days.map((day) => (
 									<DateBox
 										key={day}
 										date={day}
-										selected={
-											dateRange[0] ===
-												`${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}` ||
-											dateRange[1] ===
-												`${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-										}
-										type={
-											(!hoverDate &&
-												dateRange[0] ===
-													`${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`) ||
-											(!!hoverDate && dateRange[0] < hoverDate)
-												? 'start'
-												: dateRange[1] ===
-													  `${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-													? 'end'
-													: ''
-										}
-										isToday={
-											today.split('-')[0] === String(rightYear) &&
-											today.split('-')[1] === String(rightMonth).padStart(2, '0') &&
-											today.split('-')[2] === String(day).padStart(2, '0')
-										}
-										inRange={
-											checkInRange(
-												`${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-											) ||
-											checkInHoverRange(
-												`${rightYear}-${String(rightMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-											)
-										}
-										onClick={() => handleDateClick(rightYear, rightMonth, day)}
-										onMouseOver={() => handleDateHover(rightYear, rightMonth, day)}
+										selected={dateRange.some(
+											(date) => date === formatDate(nextYear, nextMonth, day)
+										)}
+										isToday={today === formatDate(nextYear, nextMonth, day)}
+										inRange={isDateInRange(formatDate(nextYear, nextMonth, day))}
+										type={getDateBoxType(formatDate(nextYear, nextMonth, day))}
+										onClick={() => handleDateClick(nextYear, nextMonth, day)}
+										onMouseOver={() => handleDateHover(nextYear, nextMonth, day)}
+										disabled={isDisabledDate(formatDate(nextYear, nextMonth, day))}
 									/>
 								))}
-								{rightCalendar.afterMonthDays.map((day, idx) => (
+								{nextCalendar.afterMonthDays.map((_, idx) => (
 									<DateBox
 										key={`after-${idx}`}
-										date={day}
-										className='text-Grey_Lighten-2'
+										date={''}
+										disabled
 									/>
 								))}
 							</div>

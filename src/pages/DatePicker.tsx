@@ -9,6 +9,7 @@ const DatePicker = () => {
 			<SDatePicker
 				date={date}
 				onChange={(newDate) => setDate(newDate)}
+				disabled
 			/>
 			<SDatePicker
 				label='label'
@@ -19,6 +20,7 @@ const DatePicker = () => {
 				label='deleted'
 				date={date}
 				deleted
+				disabled
 				onChange={(newDate) => setDate(newDate)}
 			/>
 		</div>

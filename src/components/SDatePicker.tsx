@@ -2,15 +2,17 @@ import { MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import SInput from './SInput';
 import { DateIcon16 } from '../assets/DateIcon';
 import { Close12 } from '../assets/CloseIcon';
-import { getDaysInMonth, oneMonthAgo, today } from '../utils/date';
+import { today } from '../utils/date';
 import Icon from './Icon';
 import DateBox from './datePicker/DateBox';
 import DatePickerPortal from './datePicker/DatePickerPortal';
+import useDatePicker from '../hooks/useDatePicker';
 
 interface SDatePickerProps {
 	date: string;
 	label?: string;
 	deleted?: boolean;
+	disabled?: boolean;
 	onChange?: (date: string) => void;
 }
 
@@ -18,8 +20,10 @@ const SDatePicker = ({
 	date,
 	label,
 	deleted = false,
+	disabled = false,
 	onChange,
 }: SDatePickerProps) => {
+	const { formatDate, createCalendar, calculateYearMonth } = useDatePicker();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const [currentDate, setCurrentDate] = useState<string>(date);
 	const [currentYear, setCurrentYear] = useState<number>(
@@ -33,37 +37,18 @@ const SDatePicker = ({
 	const [datePickerRect, setDatePickerRect] = useState<DOMRect | null>(null);
 
 	const calendar = useMemo(() => {
-		const days = getDaysInMonth(today);
+		return createCalendar(currentYear, currentMonth);
+	}, [createCalendar, currentYear, currentMonth]);
 
-		const firstDayIndex = new Date(currentYear, currentMonth - 1, 1).getDay();
-
-		const prevMonthDays =
-			firstDayIndex === 0 ? [] : getDaysInMonth(oneMonthAgo).slice(-firstDayIndex);
-
-		const remainingDays = (7 - ((days.length + firstDayIndex) % 7)) % 7;
-
-		const afterMonthDays = Array.from({ length: remainingDays }, (_, i) => i + 1);
-
-		return { days, prevMonthDays, afterMonthDays };
-	}, [currentYear, currentMonth]);
-
-	function updateMonth(type: 'prev' | 'next') {
-		setCurrentMonth((prevMonth) => {
-			let newMonth = type === 'prev' ? prevMonth - 1 : prevMonth + 1;
-			if (newMonth < 1) {
-				setCurrentYear((prevYear) => prevYear - 1);
-				newMonth = 12;
-			} else if (newMonth > 12) {
-				setCurrentYear((prevYear) => prevYear + 1);
-				newMonth = 1;
-			}
-			return newMonth;
-		});
+	function handleUpdateMonth(type: 'prev' | 'next') {
+		const { newYear, newMonth } = calculateYearMonth(
+			currentYear,
+			currentMonth,
+			type
+		);
+		setCurrentYear(newYear);
+		setCurrentMonth(newMonth);
 	}
-
-	const formatDate = (year: number, month: number, day: number) => {
-		return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-	};
 
 	const handleDateClick = (day: number) => {
 		const date = formatDate(currentYear, currentMonth, day);
@@ -96,6 +81,7 @@ const SDatePicker = ({
 				ref={datePickerRef}
 				className='w-fit'
 				onClick={() => {
+					if (disabled) return;
 					setIsOpen((prev) => !prev);
 					setCurrentDate('');
 				}}
@@ -105,6 +91,7 @@ const SDatePicker = ({
 					label={label}
 					value={date}
 					readonly
+					disable={disabled}
 					prepend={<DateIcon16 className='text-Grey_Darken-1' />}
 					inputContainerClassName='px-8pxr'
 					inputClassName='w-106pxr text-center'
@@ -164,7 +151,7 @@ const SDatePicker = ({
 								type='button'
 								name='prev-month'
 								title='Previous       '
-								onClick={() => updateMonth('prev')}
+								onClick={() => handleUpdateMonth('prev')}
 							>
 								<Icon
 									name={'ArrowLeft_12'}
@@ -176,7 +163,7 @@ const SDatePicker = ({
 								type='button'
 								name='next-month'
 								title='Next Month'
-								onClick={() => updateMonth('next')}
+								onClick={() => handleUpdateMonth('next')}
 							>
 								<Icon
 									name={'ArrowRight_12'}
@@ -198,10 +185,10 @@ const SDatePicker = ({
 					</div>
 
 					<div className='mt-16pxr grid grid-cols-7 gap-x-10pxr gap-y-8pxr'>
-						{calendar.prevMonthDays.map((day, idx) => (
+						{calendar.prevMonthDays.map((_, idx) => (
 							<DateBox
-								key={idx}
-								date={day}
+								key={`before-${idx}`}
+								date={''}
 								className='text-Grey_Lighten-2'
 							/>
 						))}
@@ -222,10 +209,10 @@ const SDatePicker = ({
 								onClick={() => handleDateClick(day)}
 							/>
 						))}
-						{calendar.afterMonthDays.map((day, idx) => (
+						{calendar.afterMonthDays.map((_, idx) => (
 							<DateBox
 								key={`after-${idx}`}
-								date={day}
+								date={''}
 								className='text-Grey_Lighten-2'
 							/>
 						))}
