@@ -1,4 +1,3 @@
-import { DateDisable } from '../components/datePicker/DateComponent';
 import SDatePicker from '../components/SDatePicker';
 
 const DatePicker = () => {
@@ -30,7 +29,7 @@ const DatePicker = () => {
     />
     <SDatePicker
      onChange={handleChange}
-     disableDates={['2024-01-01', '2025-01-01'] as DateDisable}
+     disableDates={['2025-01-01', '2025-01-20']}
     />
    </div>
   </div>

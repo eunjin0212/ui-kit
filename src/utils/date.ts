@@ -26,4 +26,3 @@ export const isSameDate = (prevDate: string, nextDate: string) => {
 		before.day === after.day
 	);
 };
-
