@@ -2,12 +2,16 @@ import { useRef, useState } from 'react';
 import DateInput from './datePicker/DateInput';
 import SingleDate from './datePicker/SingleDate';
 import DateWrapper from './datePicker/DateWrapper';
+import { DateDisable } from './datePicker/DateComponent';
 
 interface SDatePickerProps {
 	onChange: (date: string) => void;
+ disable?: boolean;
+ disableDates?: DateDisable;
+ label?: string
 }
 
-const SDatePicker = ({ onChange }: SDatePickerProps) => {
+const SDatePicker = ({ onChange, disable, disableDates, label }: SDatePickerProps) => {
 	const [selectedDate, setSelectedDate] = useState<string>('');
 	const [open, setOpen] = useState<boolean>(false);
 	const datePickerRef = useRef<HTMLDivElement | null>(null);
@@ -30,6 +34,8 @@ const SDatePicker = ({ onChange }: SDatePickerProps) => {
 				value={selectedDate}
 				onChange={handleDateChange}
 				onClick={handleClick}
+    disable={disable}
+    label={label}
 			/>
 			<DateWrapper
 				open={open}
@@ -39,6 +45,7 @@ const SDatePicker = ({ onChange }: SDatePickerProps) => {
 				<SingleDate
 					date={selectedDate}
 					onChange={setSelectedDate}
+     disable={disableDates}
 				/>
 			</DateWrapper>
 		</div>
