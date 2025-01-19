@@ -1,17 +1,21 @@
-import DateComponent from './Date';
 import { useEffect, useState } from 'react';
-import MoveButton from './MoveButton';
-import YearButton from './YearButton';
 import { formatDateToObject, formatDateToString } from '../../utils/date';
 import { useMonth } from '../../hooks/useDate';
+import DateComponent, { type DateDisable } from './DateComponent';
+import MoveButton from './MoveButton';
+import YearButton from './YearButton';
+
+interface SingDateProps {
+	date: string;
+	onChange: (date: string) => void;
+ disable?: DateDisable
+}
 
 const SingleDate = ({
 	date,
 	onChange,
-}: {
-	date: string;
-	onChange: (date: string) => void;
-}) => {
+ disable
+}: SingDateProps) => {
 	const [dateObject, setDateObject] = useState(formatDateToObject(date));
 
 	const { monthData, handleMonth } = useMonth(dateObject.year, dateObject.month);
@@ -55,6 +59,7 @@ const SingleDate = ({
 				viewDate={`${dateObject.year}-${dateObject.month}-${dateObject.day}`}
 				onclick={handleChange}
 				currentDate={date}
+    disable={disable}
 			/>
 		</>
 	);
