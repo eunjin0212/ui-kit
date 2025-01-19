@@ -1,4 +1,5 @@
 import SDatePicker from '../components/SDatePicker';
+import SDateRangePicker from '../components/SDateRangePicker';
 
 const DatePicker = () => {
  const handleChange = () => {
@@ -34,6 +35,11 @@ const DatePicker = () => {
     <SDatePicker
      onChange={handleChange}
      disableDates={['2025-01-01', '2025-01-20']}
+    />
+   </div>
+   <div className='inline-flex items-center gap-8pxr'>
+   <SDateRangePicker
+     onChange={handleChange}
     />
    </div>
   </div>

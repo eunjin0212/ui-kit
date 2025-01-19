@@ -18,20 +18,24 @@ const MoveButton = ({
 		<div
 			className={['inline-flex w-1/3 items-center gap-12pxr', className].join(' ')}
 		>
-			{hide !== 'prev' && (
+			{hide !== 'prev' ? (
 				<ArrowLeft12
 					className='cursor-pointer text-Grey_Lighten-2'
 					onClick={() => onClick('prev')}
 				/>
+			) : (
+				<span></span>
 			)}
 			<span className='flex-1 text-center text-14pxr text-Grey_Darken-4'>
 				{text}
 			</span>
-			{hide !== 'next' && (
+			{hide !== 'next' ? (
 				<ArrowRight12
 					className='cursor-pointer text-Grey_Lighten-2'
 					onClick={() => onClick('next')}
 				/>
+			) : (
+				<span></span>
 			)}
 		</div>
 	);

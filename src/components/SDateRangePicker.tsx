@@ -1,23 +1,32 @@
 import { useRef, useState } from 'react';
-import DateInput from './datePicker/DateInput';
-import SingleDate from './datePicker/SingleDate';
-import DateWrapper from './datePicker/DateWrapper';
 import { DateDisable } from './datePicker/DateComponent';
+import DateInput from './datePicker/DateInput';
+import DateWrapper from './datePicker/DateWrapper';
+import RangeDate from './datePicker/RangeDate';
 
 interface SDatePickerProps {
-	onChange: (date: string) => void;
- disable?: boolean;
- disableDates?: DateDisable;
- label?: string
- value?: string;
+	onChange: (date: string[]) => void;
+	disable?: boolean;
+	disableDates?: DateDisable;
+	label?: string;
+	value?: string[];
 }
 
-const SDatePicker = ({ onChange, disable, disableDates, label, value }: SDatePickerProps) => {
-	const [selectedDate, setSelectedDate] = useState<string>(value || '');
+const SDateRangePicker = ({
+	onChange,
+	disable,
+	disableDates,
+	label,
+	value,
+}: SDatePickerProps) => {
+	const [selectedDate, setSelectedDate] = useState<string[]>([
+		value?.[0] || '',
+		value?.[1] || '',
+	]);
 	const [open, setOpen] = useState<boolean>(false);
 	const datePickerRef = useRef<HTMLDivElement | null>(null);
 
-	const handleDateChange = (value: string) => {
+	const handleDateChange = (value: string[]) => {
 		setSelectedDate(value);
 		onChange(value);
 	};
@@ -33,24 +42,24 @@ const SDatePicker = ({ onChange, disable, disableDates, label, value }: SDatePic
 		>
 			<DateInput
 				value={selectedDate}
-				onChange={(val) => handleDateChange(val as string)}
+				onChange={(val) => handleDateChange(val as string[])}
 				onClick={handleClick}
-    disable={disable}
-    label={label}
+				disable={disable}
+				label={label}
 			/>
 			<DateWrapper
 				open={open}
 				onChange={setOpen}
 				parentRef={datePickerRef}
 			>
-				<SingleDate
+				<RangeDate
 					date={selectedDate}
 					onChange={setSelectedDate}
-     disable={disableDates}
+					disable={disableDates}
 				/>
 			</DateWrapper>
 		</div>
 	);
 };
 
-export default SDatePicker;
+export default SDateRangePicker;
