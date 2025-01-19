@@ -27,15 +27,3 @@ export const isSameDate = (prevDate: string, nextDate: string) => {
 	);
 };
 
-export const isToday = (date: string) => {
-	if (!date) return false;
-
-	const today = new Date();
-	const valueDate = new Date(date);
-
-	return (
-		today.getFullYear() === valueDate.getFullYear() &&
-		today.getMonth() === valueDate.getMonth() &&
-		today.getDate() === valueDate.getDate()
-	);
-};
