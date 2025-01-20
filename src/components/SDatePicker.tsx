@@ -13,6 +13,7 @@ interface SDatePickerProps {
 	label?: string;
 	deleted?: boolean;
 	disabled?: boolean;
+	selectable?: [string, string];
 	onChange?: (date: string) => void;
 }
 
@@ -21,6 +22,7 @@ const SDatePicker = ({
 	label,
 	deleted = false,
 	disabled = false,
+	selectable = ['', ''],
 	onChange,
 }: SDatePickerProps) => {
 	const { formatDate, createCalendar, calculateYearMonth } = useDatePicker();
@@ -61,6 +63,24 @@ const SDatePicker = ({
 		event.stopPropagation();
 		setCurrentDate('');
 		onChange?.('');
+	};
+
+	const isDisabledDate = (date: string): boolean => {
+		const [startSelectable, endSelectable] = selectable;
+
+		if (startSelectable && endSelectable) {
+			return date < startSelectable || date > endSelectable;
+		}
+
+		if (startSelectable) {
+			return date < startSelectable;
+		}
+
+		if (endSelectable) {
+			return date > endSelectable;
+		}
+
+		return false;
 	};
 
 	useEffect(() => {
@@ -196,17 +216,10 @@ const SDatePicker = ({
 							<DateBox
 								key={day}
 								date={day}
-								selected={
-									currentYear === Number(currentDate.split('-')[0]) &&
-									currentMonth === Number(currentDate.split('-')[1]) &&
-									day === Number(currentDate.split('-')[2])
-								}
-								isToday={
-									today.split('-')[0] === String(currentYear) &&
-									today.split('-')[1] === String(currentMonth).padStart(2, '0') &&
-									today.split('-')[2] === String(day).padStart(2, '0')
-								}
+								selected={currentDate === formatDate(currentYear, currentMonth, day)}
+								isToday={today === formatDate(currentYear, currentMonth, day)}
 								onClick={() => handleDateClick(day)}
+								disabled={isDisabledDate(formatDate(currentYear, currentMonth, day))}
 							/>
 						))}
 						{calendar.afterMonthDays.map((_, idx) => (
