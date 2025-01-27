@@ -6,7 +6,6 @@ const Tab = () => {
 	const [tabValue, setTabValue] = useState('tab1');
 
 	const handleTabChange = (val: string) => {
-		console.log(val);
 		setTabValue(val);
 	};
 

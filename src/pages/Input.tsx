@@ -52,7 +52,6 @@ const Input = () => {
 
 	function handleSubmit(evt: React.FormEvent<HTMLFormElement>) {
 		evt.preventDefault();
-		console.log('handleSubmit');
 
 		formData.forEach((data) => {
 			data.rules.forEach(
@@ -65,8 +64,6 @@ const Input = () => {
 				}
 			);
 		});
-
-		console.log('Submitted Data:', formData);
 	}
 
 	return (

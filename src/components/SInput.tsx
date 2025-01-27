@@ -1,5 +1,5 @@
 import Icon from './Icon';
-import { useState, ChangeEvent, useEffect, useMemo } from 'react';
+import { useState, ChangeEvent, useEffect, useMemo, ReactNode } from 'react';
 
 export interface Rule {
 	message: string;
@@ -22,6 +22,9 @@ export interface SInputProps {
 	className?: string;
 	labelClassName?: string;
 	inputClassName?: string;
+	inputContainerClassName?: string;
+	prepend?: ReactNode;
+	append?: ReactNode;
 	onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
 	onBlur?: (value: string) => void;
 }
@@ -41,6 +44,9 @@ const SInput = ({
 	className = '',
 	labelClassName = '',
 	inputClassName = '',
+	inputContainerClassName = '',
+	prepend,
+	append,
 	onChange,
 	onBlur,
 }: SInputProps) => {
@@ -122,8 +128,9 @@ const SInput = ({
 					: 'before:pointer-events-none before:border-Grey_Lighten-1 focus-within:before:border-positive focus-within:before:shadow-input hover:before:border-positive hover:before:shadow-input',
 				inputStatus === 'error' ? 'before:border-Red_Default' : '',
 				inputStatus === 'pass' ? 'before:border-Green_Lighten-2' : '',
+				inputContainerClassName,
 			].join(' '),
-		[useInsideLabel, disable, inputStatus]
+		[useInsideLabel, disable, inputStatus, inputContainerClassName]
 	);
 
 	const inputClass = useMemo(
@@ -162,6 +169,7 @@ const SInput = ({
 				)}
 
 				<div className={inputWrapperClass}>
+					{prepend}
 					<input
 						id={label || name}
 						type={inputType}
@@ -173,6 +181,8 @@ const SInput = ({
 						onChange={handleChange}
 						onBlur={handleBlur}
 					/>
+					{append}
+
 					{type === 'password' && (
 						<button data-testid='password-visible-button'>
 							<Icon

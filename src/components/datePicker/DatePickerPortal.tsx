@@ -10,34 +10,36 @@ import React, {
 import { createPortal } from 'react-dom';
 
 const initParentDOMRect = {
-	width: 0,
+	// width: 0,
 	left: 0,
 	top: 0,
 };
 
 type Props = {
-	parentRef: RefObject<HTMLButtonElement>;
+	parentRect: DOMRect | null;
+	parentRef: RefObject<HTMLDivElement>;
 	children: React.ReactNode;
 	isOpen: boolean;
 	setIsOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export default function SelectDropdownContainer({
+const DatePickerPortal = ({
+	parentRect,
 	parentRef,
 	children,
 	isOpen,
 	setIsOpen,
-}: Props) {
+}: Props) => {
 	const [position, setPosition] = useState(initParentDOMRect);
-	const selectDropdownRef = useRef<HTMLUListElement>(null);
+	const portalRef = useRef<HTMLDivElement>(null);
 
 	const handleClickOutSide = useCallback(
 		(e: MouseEvent) => {
 			if (
 				parentRef.current &&
 				!parentRef.current.contains(e.target as Node) &&
-				selectDropdownRef.current &&
-				!selectDropdownRef.current.contains(e.target as Node)
+				portalRef.current &&
+				!portalRef.current.contains(e.target as Node)
 			)
 				setIsOpen(false);
 		},
@@ -53,9 +55,8 @@ export default function SelectDropdownContainer({
 	}, [handleClickOutSide]);
 
 	useEffect(() => {
-		if (selectDropdownRef.current && parentRef.current) {
-			const parentRect = parentRef.current.getBoundingClientRect();
-			const dropdownHeight = selectDropdownRef.current.offsetHeight;
+		if (portalRef.current && parentRect) {
+			const dropdownHeight = portalRef.current.offsetHeight;
 			const viewportHeight = window.innerHeight;
 			const margin = 4;
 
@@ -66,33 +67,34 @@ export default function SelectDropdownContainer({
 
 			setPosition({
 				top: top,
-				width: parentRect.width,
 				left: parentRect.left,
 			});
 		}
-	}, [parentRef]);
+	}, [parentRect, parentRef, portalRef, isOpen]);
 
 	return (
 		<>
 			{createPortal(
-				<ul
-					ref={selectDropdownRef}
+				<div
+					ref={portalRef}
 					className={[
-						's-select__options rounded-2pxr bg-white  shadow-dropdownOptions',
+						'rounded-2pxr bg-white  shadow-dropdownOptions',
 						isOpen ? 'opacity-1' : 'pointer-events-none opacity-0',
 					].join(' ')}
 					style={{
 						position: 'absolute',
 						top: position.top,
 						left: position.left,
-						width: position.width,
+						// width: position.width,
 						transition: 'opacity 0.4s',
 					}}
 				>
 					{children}
-				</ul>,
+				</div>,
 				document.body
 			)}
 		</>
 	);
-}
+};
+
+export default DatePickerPortal;
