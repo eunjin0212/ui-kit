@@ -1,6 +1,6 @@
 import { SVGProps } from 'react';
 
-export const Dropdown12 = (props: SVGProps<SVGSVGElement>) => {
+export const DropdownIcon12 = (props: SVGProps<SVGSVGElement>) => {
 	return (
 		<svg
 			width='12'

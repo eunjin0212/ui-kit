@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
 import { useId, useState, useEffect, useRef, useCallback } from 'react';
 import colors from '../css/colors.ts';
-import { Dropdown12 } from '../assets/DropdownIcon.tsx';
+import { DropdownIcon12 } from '../assets/DropdownIcon.tsx';
 import DropdownOptions, {
 	type DropdownOptionProps,
 } from './DropdownOptions.tsx';
@@ -134,7 +134,7 @@ const SDropdown = ({
 								: 'border-dropdownInner',
 					].join(' ')}
 				>
-					<Dropdown12
+					<DropdownIcon12
 						className={
 							disabled
 								? 'text-Grey_Default'

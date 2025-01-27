@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Dropdown12 } from '../assets/DropdownIcon';
+import { DropdownIcon12 } from '../assets/DropdownIcon';
 import { SelectOptionProps } from './select/SelectOptions';
 import SelectDropdownContainer from './select/SelectDropdownContainer';
 import SelectCheckboxItems from './select/SelectCheckboxItems';
@@ -47,7 +47,7 @@ const SSelectCheckbox = ({
 					: value.length === options.filter((option) => !option.disabled).length
 						? '전체'
 						: value.map((item) => item.value).join(', ')}
-				<Dropdown12
+				<DropdownIcon12
 					className={`absolute right-8pxr top-8pxr ${isDropdownOpen && 'rotate-180'}`}
 					style={{ transition: 'transform 0.3s' }}
 				/>
