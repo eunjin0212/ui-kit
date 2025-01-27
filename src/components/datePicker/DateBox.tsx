@@ -55,7 +55,6 @@ const DateBox = ({
 					: type === 'end'
 						? 'before:left-0 before:w-14pxr'
 						: '',
-
 				className,
 			].join(' ')}
 			onClick={() => handleClickDate()}
@@ -70,6 +69,7 @@ const DateBox = ({
 					isToday && !selected
 						? 'relative before:absolute before:left-1/2 before:top-0 before:h-full before:w-28pxr before:-translate-x-1/2 before:rounded-full before:border before:border-Grey_Lighten-3 before:content-[""]'
 						: '',
+					className,
 				].join(' ')}
 			>
 				{date}

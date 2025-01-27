@@ -205,28 +205,24 @@ const SDatePicker = ({
 					</div>
 
 					<div className='mt-16pxr grid grid-cols-7 gap-x-10pxr gap-y-8pxr'>
-						{calendar.prevMonthDays.map((_, idx) => (
+						{[
+							...calendar.prevMonthDays,
+							...calendar.days,
+							...calendar.afterMonthDays,
+						].map((day, idx) => (
 							<DateBox
-								key={`before-${idx}`}
-								date={''}
-								className='text-Grey_Lighten-2'
-							/>
-						))}
-						{calendar.days.map((day) => (
-							<DateBox
-								key={day}
-								date={day}
-								selected={currentDate === formatDate(currentYear, currentMonth, day)}
-								isToday={today === formatDate(currentYear, currentMonth, day)}
-								onClick={() => handleDateClick(day)}
-								disabled={isDisabledDate(formatDate(currentYear, currentMonth, day))}
-							/>
-						))}
-						{calendar.afterMonthDays.map((_, idx) => (
-							<DateBox
-								key={`after-${idx}`}
-								date={''}
-								className='text-Grey_Lighten-2'
+								key={`${day}_${idx}`}
+								date={!day ? '' : Number(day)}
+								selected={
+									currentDate === formatDate(currentYear, currentMonth, Number(day))
+								}
+								isToday={today === formatDate(currentYear, currentMonth, Number(day))}
+								onClick={() => handleDateClick(Number(day))}
+								disabled={
+									!day
+										? true
+										: isDisabledDate(formatDate(currentYear, currentMonth, Number(day)))
+								}
 							/>
 						))}
 					</div>

@@ -61,9 +61,13 @@ const SDateRangePicker = ({
 		setPrevMonth(newMonth);
 	}
 
-	const handleDateClick = (year: number, month: number, day: number) => {
+	const handleDateClick = (type: 'prev' | 'next', day: number) => {
 		setHoverDate('');
-		const selectedDate = formatDate(year, month, day);
+
+		const selectedDate =
+			type === 'prev'
+				? formatDate(prevYear, prevMonth, day)
+				: formatDate(nextYear, nextMonth, day);
 
 		if (!dateRange[0] || !!dateRange[1] || selectedDate < dateRange[0]) {
 			setDateRange([selectedDate, '']);
@@ -74,8 +78,12 @@ const SDateRangePicker = ({
 		}
 	};
 
-	const handleDateHover = (year: number, month: number, day: number) => {
-		setHoverDate(formatDate(year, month, day));
+	const handleDateHover = (type: 'prev' | 'next', day: number) => {
+		const hoverDate =
+			type === 'prev'
+				? formatDate(prevYear, prevMonth, day)
+				: formatDate(nextYear, nextMonth, day);
+		setHoverDate(hoverDate);
 	};
 
 	const isDateInRange = (date: string): boolean => {
@@ -138,10 +146,7 @@ const SDateRangePicker = ({
 				title='datePickerButton'
 				ref={datePickerRef}
 				className='w-fit'
-				onClick={() => {
-					if (disabled) return;
-					setIsOpen((prev) => !prev);
-				}}
+				onClick={() => !disabled && setIsOpen((prev) => !prev)}
 			>
 				<SInput
 					useInsideLabel
@@ -205,130 +210,107 @@ const SDateRangePicker = ({
 						</button>
 					</div>
 
-					<div className='flex flex-nowrap items-start'>
-						{/* Start Date Picker */}
-						<div className='w-fit'>
-							<div className='relative w-full text-center text-14pxr'>
-								<button
-									type='button'
-									name='prev'
-									title='Previous'
-									className='absolute left-0 top-1/2 -translate-y-1/2'
-									onClick={() => updateYearMonth('prev')}
-								>
-									<Icon
-										name={'ArrowLeft_12'}
-										className='text-Grey_Lighten-2'
-									/>
-								</button>
-								{prevYear}.{String(prevMonth).padStart(2, '0')}
-							</div>
+					<div className='relative flex flex-nowrap items-start gap-x-48pxr'>
+						{[prevCalendar, nextCalendar].map((calendar, index) => (
+							<div
+								key={index}
+								className='w-266pxr'
+							>
+								<div className='relative w-full text-center text-14pxr'>
+									<button
+										type='button'
+										name='month'
+										title='Month'
+										className={[
+											'absolute  top-1/2 -translate-y-1/2',
+											index === 0 ? 'left-0' : 'right-1',
+										].join(' ')}
+										onClick={() => updateYearMonth(index === 0 ? 'prev' : 'next')}
+									>
+										<Icon
+											name={index === 0 ? 'ArrowLeft_12' : 'ArrowRight_12'}
+											className='text-Grey_Lighten-2'
+										/>
+									</button>
+									{index === 0
+										? `${prevYear}.${String(prevMonth).padStart(2, '0')}`
+										: `${nextYear}.${String(nextMonth).padStart(2, '0')}`}
+								</div>
 
-							<div className='mt-8pxr grid grid-cols-7'>
-								{['일', '월', '화', '수', '목', '금', '토'].map((day) => (
-									<DateBox
-										key={day}
-										date={day}
-										className='h-20pxr text-center text-12pxr leading-20pxr text-Grey_Default'
-									/>
-								))}
-							</div>
+								<div className='mt-8pxr grid grid-cols-7'>
+									{['일', '월', '화', '수', '목', '금', '토'].map((day) => (
+										<DateBox
+											key={day}
+											date={day}
+											disabled
+											className='text-12pxr !text-Grey_Default'
+										/>
+									))}
+								</div>
 
-							<div className='mt-16pxr grid grid-cols-7 gap-y-8pxr'>
-								{prevCalendar.prevMonthDays.map((_, idx) => (
-									<DateBox
-										key={`before-${idx}`}
-										date={''}
-										disabled
-									/>
-								))}
-								{prevCalendar.days.map((day) => (
-									<DateBox
-										key={day}
-										date={day}
-										selected={dateRange.some(
-											(date) => date === formatDate(prevYear, prevMonth, day)
-										)}
-										type={getDateBoxType(formatDate(prevYear, prevMonth, day))}
-										isToday={today === formatDate(prevYear, prevMonth, day)}
-										disabled={isDisabledDate(formatDate(prevYear, prevMonth, day))}
-										inRange={isDateInRange(formatDate(prevYear, prevMonth, day))}
-										onClick={() => handleDateClick(prevYear, prevMonth, day)}
-										onMouseOver={() => handleDateHover(prevYear, prevMonth, day)}
-									/>
-								))}
-								{prevCalendar.afterMonthDays.map((_, idx) => (
-									<DateBox
-										key={`after-${idx}`}
-										date={''}
-										disabled
-									/>
-								))}
+								<div className='mt-12pxr grid grid-cols-7 gap-y-8pxr'>
+									{[
+										...calendar.prevMonthDays,
+										...calendar.days,
+										...calendar.afterMonthDays,
+									].map((day, idx) => (
+										<DateBox
+											key={`prev${day}_${idx}`}
+											date={!day ? '' : Number(day)}
+											selected={dateRange.some(
+												(date) =>
+													date ===
+													formatDate(
+														index === 0 ? prevYear : nextYear,
+														index === 0 ? prevMonth : nextMonth,
+														Number(day)
+													)
+											)}
+											type={getDateBoxType(
+												formatDate(
+													index === 0 ? prevYear : nextYear,
+													index === 0 ? prevMonth : nextMonth,
+													Number(day)
+												)
+											)}
+											isToday={
+												today ===
+												formatDate(
+													index === 0 ? prevYear : nextYear,
+													index === 0 ? prevMonth : nextMonth,
+													Number(day)
+												)
+											}
+											disabled={
+												!day
+													? true
+													: isDisabledDate(
+															formatDate(
+																index === 0 ? prevYear : nextYear,
+																index === 0 ? prevMonth : nextMonth,
+																Number(day)
+															)
+														)
+											}
+											inRange={isDateInRange(
+												formatDate(
+													index === 0 ? prevYear : nextYear,
+													index === 0 ? prevMonth : nextMonth,
+													Number(day)
+												)
+											)}
+											onClick={() =>
+												handleDateClick(index === 0 ? 'prev' : 'next', Number(day))
+											}
+											onMouseOver={() =>
+												handleDateHover(index === 0 ? 'prev' : 'next', Number(day))
+											}
+										/>
+									))}
+								</div>
 							</div>
-						</div>
-
-						<div className='mx-24pxr h-full w-1pxr bg-Grey_Lighten-3'></div>
-
-						{/* End Date Picker */}
-						<div className='w-fit'>
-							<div className='relative w-full text-center text-14pxr'>
-								{nextYear}.{String(nextMonth).padStart(2, '0')}
-								<button
-									type='button'
-									name='next'
-									title='Next'
-									onClick={() => updateYearMonth('next')}
-									className='absolute right-0 top-1/2 -translate-y-1/2'
-								>
-									<Icon
-										name={'ArrowRight_12'}
-										className='text-Grey_Lighten-2'
-									/>
-								</button>
-							</div>
-
-							<div className='mt-8pxr grid grid-cols-7'>
-								{['일', '월', '화', '수', '목', '금', '토'].map((day) => (
-									<DateBox
-										date={day}
-										key={day}
-										className='h-20pxr text-center text-12pxr leading-20pxr text-Grey_Default'
-									/>
-								))}
-							</div>
-
-							<div className='mt-16pxr grid grid-cols-7 gap-y-8pxr'>
-								{nextCalendar.prevMonthDays.map((_, idx) => (
-									<DateBox
-										key={idx}
-										date={''}
-										disabled
-									/>
-								))}
-								{nextCalendar.days.map((day) => (
-									<DateBox
-										key={day}
-										date={day}
-										selected={dateRange.some(
-											(date) => date === formatDate(nextYear, nextMonth, day)
-										)}
-										isToday={today === formatDate(nextYear, nextMonth, day)}
-										inRange={isDateInRange(formatDate(nextYear, nextMonth, day))}
-										type={getDateBoxType(formatDate(nextYear, nextMonth, day))}
-										onClick={() => handleDateClick(nextYear, nextMonth, day)}
-										onMouseOver={() => handleDateHover(nextYear, nextMonth, day)}
-										disabled={isDisabledDate(formatDate(nextYear, nextMonth, day))}
-									/>
-								))}
-								{nextCalendar.afterMonthDays.map((_, idx) => (
-									<DateBox
-										key={`after-${idx}`}
-										date={''}
-										disabled
-									/>
-								))}
-							</div>
-						</div>
+						))}
+						<div className='absolute left-1/2 top-0 h-full w-1pxr -translate-x-1/2 bg-Grey_Lighten-8'></div>
 					</div>
 				</div>
 			</DatePickerPortal>
