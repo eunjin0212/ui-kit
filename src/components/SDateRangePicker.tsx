@@ -149,7 +149,6 @@ const SDateRangePicker = ({
 				onClick={() => !disabled && setIsOpen((prev) => !prev)}
 			>
 				<SInput
-					useInsideLabel
 					label={label}
 					value={`${dateRange[0]} ~ ${dateRange[1]}`}
 					readonly

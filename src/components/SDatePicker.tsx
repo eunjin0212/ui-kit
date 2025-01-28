@@ -107,7 +107,6 @@ const SDatePicker = ({
 				}}
 			>
 				<SInput
-					useInsideLabel
 					label={label}
 					value={date}
 					readonly

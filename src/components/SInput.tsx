@@ -12,7 +12,6 @@ export interface SInputProps {
 	placeholder?: string;
 	name?: string;
 	label?: string;
-	useInsideLabel?: boolean;
 	rules?: Rule[];
 	useRealTimeRules?: boolean;
 	errorMessage?: string;
@@ -35,7 +34,6 @@ const SInput = ({
 	placeholder,
 	name,
 	label,
-	useInsideLabel = false,
 	rules = [],
 	useRealTimeRules = false,
 	hint,
@@ -108,21 +106,21 @@ const SInput = ({
 	const labelClass = useMemo(
 		() =>
 			[
-				useInsideLabel
+				label
 					? 'before:rounded-l-2pxr before:absolute before:w-full before:h-full before:top-0 before:left-0 before:contents-[""] before:border before:border-r-0 px-12pxr py-4pxr bg-Grey_Lighten-5'
 					: 'mr-12pxr',
 				disable
 					? 'before:border-Grey_Lighten-2 cursor-not-allowed'
 					: 'before:border-Grey_Lighten-1',
 			].join(' '),
-		[disable, useInsideLabel]
+		[disable, label]
 	);
 
 	const inputWrapperClass = useMemo(
 		() =>
 			[
 				"s-input__inner before:contents-[''] relative flex h-full flex-nowrap items-center px-12pxr py-4pxr before:absolute before:left-0 before:top-0 before:h-full before:w-full before:border",
-				useInsideLabel ? 'before:rounded-r-2pxr' : 'before:rounded-2pxr',
+				label ? 'before:rounded-r-2pxr' : 'before:rounded-2pxr',
 				disable
 					? 'cursor-not-allowed bg-Grey_Lighten-5 text-Grey_Default before:border-Grey_Lighten-2'
 					: 'before:pointer-events-none before:border-Grey_Lighten-1 focus-within:before:border-positive focus-within:before:shadow-input hover:before:border-positive hover:before:shadow-input',
@@ -130,7 +128,7 @@ const SInput = ({
 				inputStatus === 'pass' ? 'before:border-Green_Lighten-2' : '',
 				inputContainerClassName,
 			].join(' '),
-		[useInsideLabel, disable, inputStatus, inputContainerClassName]
+		[label, disable, inputStatus, inputContainerClassName]
 	);
 
 	const inputClass = useMemo(
