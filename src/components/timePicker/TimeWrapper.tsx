@@ -26,7 +26,7 @@ const TimeWrapper = ({
 			<div
 				className={[
 					'absolute h-124pxr z-10 rounded-8pxr bg-white shadow-[2px_2px_12px_2px_#00000033]',
-					timeFormat === '12' ? 'w-240pxr' : 'w-144pxr',
+					timeFormat === '12' ? 'w-240pxr' : 'w-144pxr p-24pxr',
 				].join(' ')}
 				style={{
 					top: position.top,

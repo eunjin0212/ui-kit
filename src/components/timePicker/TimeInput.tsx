@@ -87,6 +87,7 @@ const TimeInput = ({
 				) : (
 					DateNumber(value)
 				)}
+    <span></span>
 			</div>
 		</div>
 	);
