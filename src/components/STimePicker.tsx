@@ -49,6 +49,8 @@ const STimePicker = ({
 				label={label}
 				value={time}
 				onClick={() => setOpen(!open)}
+    isAm={timeFormat === '12' ? isAm : undefined}
+
 			/>
 			<TimeWrapper
 				open={open}
